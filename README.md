@@ -1,4 +1,10 @@
-# ppdg-extractor
+## Credit
+@Churn2burn for ppdg-extractor
+
+# giftcard-extractor
+This is a modified version of ppdg-extractor.  The format of the card output is different but adds functionality for multiple from email addresses (useful for forwarded emails).
+
+## Setup ##
 Extract (CSV) codes from and screenshot (JPG) PayPal Digital Gifts gift cards. Adapted from https://github.com/stevenmirabito/ code in order to clean up screenshots, save screenshots as .JPG, and to process PIN and non-PIN cards using the same program.
 
 Program specifically configured on Windows - includes ChromeDriver.exe - for gmail.
