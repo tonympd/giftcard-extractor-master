@@ -12,9 +12,10 @@ IMAP_SSL = True
 IMAP_USERNAME = 'xxxxx'
 IMAP_PASSWORD = 'xxxxx'
 
-FOLDER = 'PPDG'
+FOLDER = 'XXXXXX'
 
-FROM_EMAILS = ['gifts@paypal.com', 'xxxxxx@icloud.com']
+FROM_EMAILS = ['gifts@paypal.com']
+#FROM_EMAILS = ['gifts@paypal.com', 'xxxxxx@icloud.com']
 
 card_amount = '//*[@id="app"]/div/div/div/div/section/div/div[1]/div[2]/div/dl[1]/dd'
 card_number = '//*[@id="app"]/div/div/div/div/section/div/div[1]/div[2]/div/dl[2]/dd'

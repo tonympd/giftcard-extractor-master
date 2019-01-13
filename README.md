@@ -7,8 +7,10 @@ Program specifically configured on Windows - includes ChromeDriver.exe - for gma
 
 2) Open command prompt (cmd) and navigate to this folder. Install the dependencies by running the following commands:
 	
+	```bash
 	 pip3 install -r requirements.txt
-
+    ```
+    
 3) Rename config.sample.py to config.py and edit the following variables:
 	
 	a) Change IMAP_USERNAME to your gmail account
@@ -19,8 +21,10 @@ Program specifically configured on Windows - includes ChromeDriver.exe - for gma
 	
 	d) Create a gmail label for the cards you would like to extract and change FOLDER to this label. This label will serve as the processing folder for your cards. When you would like to extract a card, label it with this label, run the extractor, and then move the card to another label. The program can only see cards that reside in this label.
 	
-	e) Note: When logging in for the first time, gmail may block access. You will need to follow the steps in the email to follow to enable less secure applications.
+	e) Change FROM_EMAILS to any email you want to check the FROM address of.  This is nice if you have forwarded emails.  
 	
-4) Double click on MasterExtractor.bat to run the program. You will get .jpg screenshots in the "screenshots" folder and will have a .csv file with near GCW (GiftCardWiki) submission standards. In order to access the cards, open the .csv file with your notepad program of choice. I prefer Notepad++ (https://notepad-plus-plus.org/download/v7.5.3.html).
+	f) Note: When logging in for the first time, gmail may block access. You will need to follow the steps in the email to follow to enable less secure applications.
+	
+4) Double click on MasterExtractor.bat to run the program. You will get .jpg screenshots in the "screenshots" folder and will have a .csv file for each FROM email address ~~with near GCW (GiftCardWiki) submission standards.~~ In order to access the cards, open the .csv file with your notepad program of choice. I prefer Notepad++ (https://notepad-plus-plus.org/download/v7.5.3.html).
 
 5) Enjoy!
