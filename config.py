@@ -9,13 +9,14 @@ CHROMEDRIVER_PATH = os.path.join(directory, file)
 IMAP_HOST = 'imap.gmail.com'
 IMAP_PORT = 993
 IMAP_SSL = True
-IMAP_USERNAME = 'xxxxx'
-IMAP_PASSWORD = 'xxxxx'
+IMAP_USERNAME = 'xxxxxxxxxxxxx'
+IMAP_PASSWORD = 'xxxxxxxxxxxxxxxx'
 
-FOLDER = 'XXXXXX'
+SAVE_SCREENSHOTS = True
+FOLDER = 'xxxxxxxxxxxxx'
 
 FROM_EMAILS = ['gifts@paypal.com', 'no-reply@samsungpay.com']
-#FROM_EMAILS = ['gifts@paypal.com', 'xxxxxx@icloud.com']
+
 
 card_amount = '//*[@id="app"]/div/div/div/div/section/div/div[1]/div[2]/div/dl[1]/dd'
 card_number = '//*[@id="app"]/div/div/div/div/section/div/div[1]/div[2]/div/dl[2]/dd'
