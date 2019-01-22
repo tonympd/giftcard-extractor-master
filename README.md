@@ -53,11 +53,11 @@ Program specifically configured on Windows - includes ChromeDriver.exe - for gma
  
     In order to access the cards, open the .csv file with your notepad program of choice. I prefer Notepad++ (https://notepad-plus-plus.org/download/v7.5.3.html).
 
-5) Enjoy!
-
-6) Useful Excel Formulas to turn CSV output into Cells.  Paste output into Cell A
+5) Useful Excel Formulas to turn CSV output into Cells.  Paste output into Cell A
 
         Cell A Example: 1234567891011,1234,50.00 
         Cell B: =LEFT(A1, SEARCH(",",A1,1)-1)        
         Cell C: =MID(A1,SEARCH(",",A1,1)+1,SEARCH(",",A1,SEARCH(",",A1,1)+1)-SEARCH(",",A1,1)-1)        
         Cell D: =RIGHT(A1,LEN(A1)-SEARCH(",",A1,SEARCH(",",A1,1)+1))
+
+6) Enjoy!
