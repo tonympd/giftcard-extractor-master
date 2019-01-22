@@ -206,6 +206,8 @@ for from_email in config.FROM_EMAILS:
                                 csv_writer.writerow([card_number, card_pin, card_amount])
                             elif config.CSV_OUTPUT_FORMAT == "GCW":
                                 csv_writer.writerow([card_amount, card_number, card_pin])
+                            else:
+                                print("ERROR: Invalid output format, please specify TCB or GCW in config.py")
 
                             # Print out the details to the console
                             print("{}: {},{},{}".format(card_type, card_number, card_pin, card_amount))
