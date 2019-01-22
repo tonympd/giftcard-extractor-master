@@ -1,10 +1,9 @@
 ### Project-specific files ###
-config.py
-local_config.py
 *.csv
 *.xlsx
 screenshots/*
 .idea/*
+config.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
