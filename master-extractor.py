@@ -202,7 +202,10 @@ for from_email in config.FROM_EMAILS:
                                 os.remove(screenshot_name)
 
                             # Write the details to the CSV
-                            csv_writer.writerow([card_number, card_pin, card_amount])
+                            if config.CSV_OUTPUT_FORMAT == "TCB":
+                                csv_writer.writerow([card_number, card_pin, card_amount])
+                            elif config.CSV_OUTPUT_FORMAT == "GCW":
+                                csv_writer.writerow([card_amount, card_number, card_pin])
 
                             # Print out the details to the console
                             print("{}: {},{},{}".format(card_type, card_number, card_pin, card_amount))

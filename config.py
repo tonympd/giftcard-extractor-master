@@ -6,18 +6,26 @@ file = 'chromedriver.exe' #Windows
 
 CHROMEDRIVER_PATH = os.path.join(directory, file)
 
+# Email Settings
 IMAP_HOST = 'imap.gmail.com'
 IMAP_PORT = 993
 IMAP_SSL = True
-IMAP_USERNAME = 'xxxxxxxxxxxxx'
-IMAP_PASSWORD = 'xxxxxxxxxxxxxxxx'
+IMAP_USERNAME = 'XXXXXXXXXX'
+IMAP_PASSWORD = 'XXXXXXXXXX'
 
-SAVE_SCREENSHOTS = True
-FOLDER = 'xxxxxxxxxxxxx'
+FOLDER = 'XXXXXXXXXX'
 
 FROM_EMAILS = ['gifts@paypal.com', 'no-reply@samsungpay.com']
 
-
+# Gift Card Settings
 card_amount = '//*[@id="app"]/div/div/div/div/section/div/div[1]/div[2]/div/dl[1]/dd'
 card_number = '//*[@id="app"]/div/div/div/div/section/div/div[1]/div[2]/div/dl[2]/dd'
 card_pin = '//*[@id="app"]/div/div/div/div/section/div/div[1]/div[2]/div[2]/dl[3]/dd'
+
+SAVE_SCREENSHOTS = False
+
+# CSV Output Formats:
+# TCB: card_number, card_pin, card_amount
+# GCW: card_amount, card_number, card_pin
+CSV_OUTPUT_FORMAT = "TCB"
+
