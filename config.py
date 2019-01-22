@@ -22,7 +22,7 @@ card_amount = '//*[@id="app"]/div/div/div/div/section/div/div[1]/div[2]/div/dl[1
 card_number = '//*[@id="app"]/div/div/div/div/section/div/div[1]/div[2]/div/dl[2]/dd'
 card_pin = '//*[@id="app"]/div/div/div/div/section/div/div[1]/div[2]/div[2]/dl[3]/dd'
 
-SAVE_SCREENSHOTS = False
+SAVE_SCREENSHOTS = True
 
 # CSV Output Formats:
 # TCB: card_number, card_pin, card_amount
