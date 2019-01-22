@@ -1,8 +1,16 @@
-## Credit
-@Churn2burn for ppdg-extractor
+## Contributors
+- @Churn2burn 
+- @h4xdaplanet 
+- @Tony 
 
 # giftcard-extractor
-This is a modified version of ppdg-extractor.  The format of the card output is different but adds functionality for multiple from email addresses (useful for forwarded emails).
+This is a modified version of the ppdg-extractor.  
+
+## Change Log (1/22/2019)
+ - Added SPay Support
+ - Added ability to search for multiple FROM addresses 
+ - Added Flag so screenshots can be turned off when not needed
+ - Added output formatting for TCB and GCW formats
 
 ## Setup ##
 Extract (CSV) codes from and screenshot (JPG) PayPal Digital Gifts gift cards. Adapted from https://github.com/stevenmirabito/ code in order to clean up screenshots, save screenshots as .JPG, and to process PIN and non-PIN cards using the same program.
@@ -23,14 +31,33 @@ Program specifically configured on Windows - includes ChromeDriver.exe - for gma
 	
 	b) Change IMAP_PASSWORD to your gmail password
 	
-	c) Change XPATH locations for card_amount, card_number, and card_pin if necessary (will be required if these fields come back as N/A in the console. XPATH can be found by inspecting element in Chrome, right clicking on the item in the elements console, Copy, "Copy XPATH".
+	c) Change XPATH locations for card_amount, card_number, and card_pin if necessary (will be required if these fields come back as N/A in the console. XPATH can be found by inspecting element in Chrome, right clicking on the item in the elements console, Copy, "Copy XPATH".  **For most cards you will not need to change these**
 	
 	d) Create a gmail label for the cards you would like to extract and change FOLDER to this label. This label will serve as the processing folder for your cards. When you would like to extract a card, label it with this label, run the extractor, and then move the card to another label. The program can only see cards that reside in this label.
 	
-	e) Change FROM_EMAILS to any email you want to check the FROM address of.  This is nice if you have forwarded emails.  
+	e) Change FROM_EMAILS to any email you want to check the FROM address of.  This is nice if you have forwarded emails or for multiple types of cards.
 	
-	f) Note: When logging in for the first time, gmail may block access. You will need to follow the steps in the email to follow to enable less secure applications.
+	f) Set SAVE_SCREENSHOTS = False if you do not want screenshots (capitalization matters)
 	
-4) Double click on MasterExtractor.bat to run the program. You will get .jpg screenshots in the "screenshots" folder and will have a .csv file for each FROM email address ~~with near GCW (GiftCardWiki) submission standards.~~ In order to access the cards, open the .csv file with your notepad program of choice. I prefer Notepad++ (https://notepad-plus-plus.org/download/v7.5.3.html).
+	    SAVE_SCREENSHOTS = True
+	    SAVE_SCREENSHOTS = False
+	
+	g) Set CSV_OUTPUT_FORMAT to "TCB" or "GCW" depending on desired output
+	
+	    TCB: card_number, card_pin, card_amount
+	    GCW: card_amount, card_number, card_pin
+	
+	h) Note: When logging in for the first time, gmail may block access. You will need to follow the steps in the email to follow to enable less secure applications.
+	
+4) Double click on MasterExtractor.bat to run the program. You will get .jpg screenshots in the "screenshots" folder and will have a .csv file for each FROM email address.
+ 
+    In order to access the cards, open the .csv file with your notepad program of choice. I prefer Notepad++ (https://notepad-plus-plus.org/download/v7.5.3.html).
 
 5) Enjoy!
+
+6) Useful Excel Formulas to turn CSV output into Cells.  Paste output into Cell A
+
+        Cell A Example: 1234567891011,1234,50.00 
+        Cell B: =LEFT(A1, SEARCH(",",A1,1)-1)        
+        Cell C: =MID(A1,SEARCH(",",A1,1)+1,SEARCH(",",A1,SEARCH(",",A1,1)+1)-SEARCH(",",A1,1)-1)        
+        Cell D: =RIGHT(A1,LEN(A1)-SEARCH(",",A1,SEARCH(",",A1,1)+1))
