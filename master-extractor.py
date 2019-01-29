@@ -91,11 +91,10 @@ for from_email in config.FROM_EMAILS:
 
                             # PPDG Parser
                             if link_type == 'ppdg':
-                                # Get the type of card
-                                #what does this even do?
-                                card_type_exists = browser.find_elements_by_xpath('//*[@id="app"]/div/div/div/div/section/div/div[3]/div[2]/div/h2[1]')
 
                                 #  TONY:  I believe this is for solving Captcha but not entirely positive.
+                                card_type_exists = browser.find_elements_by_xpath('//*[@id="app"]/div/div/div/div/section/div/div[3]/div[2]/div/h2[1]')
+
                                 if card_type_exists:
                                     card_type = browser.find_element_by_xpath('//*[@id="app"]/div/div/div/div/section/div/div[3]/div[2]/div/h2[1]').text.strip()
                                     card_type = re.compile(r'(.*) Terms and Conditions').match(card_type).group(1)
@@ -137,9 +136,10 @@ for from_email in config.FROM_EMAILS:
                                 # Get Card Information
                                 if card_type is not None:
                                     try:
-                                        card_amount = browser.find_element_by_xpath('//*[@id="main"]/div[1]/div[2]/h2').text.strip()
-                                        card_number = browser.find_element_by_xpath('//*[@id="cardNumber2"]').text
-                                        card_pin = browser.find_elements_by_xpath('//*[@id="main"]/div[2]/div[2]/p[2]/span')
+                                        card_amount = browser.find_element_by_xpath('//*[@id="main"]/div[1]/div[2]/h2').text.replace('$', '').strip() + '.00'
+                                        card_number = browser.find_element_by_xpath('//*[@id="cardNumber2"]').text.replace(" ","")
+                                        card_pin = browser.find_element_by_xpath('//*[@id="main"]/div[2]/div[2]/p[2]/span').text
+
                                     except:
                                         input('Couldnt get card info for ' + card_type + '. Please let h4xdaplanet or tony know')
                                         raise
@@ -155,12 +155,12 @@ for from_email in config.FROM_EMAILS:
                                     # get rest of Wayfair or Columbia GC
                                     if card_type is not None:
                                         try:
-                                            card_amount = browser.find_element_by_xpath('//*[@id="amount"]').text.strip()
+                                            card_amount = browser.find_element_by_xpath('//*[@id="amount"]').text.replace('$', '').strip() + '.00'
                                         except:
                                             pass
 
                                         try:
-                                            card_amount = browser.find_element_by_xpath('//*[@id="main"]/div[1]/div[2]/h2').text.strip()
+                                            card_amount = browser.find_element_by_xpath('//*[@id="main"]/div[1]/div[2]/h2').text.replace('$', '').strip() + '.00'
                                         except:
                                             input('Couldnt get card info for ' + card_type + '. Please let h4xdaplanet or tony know')
 
