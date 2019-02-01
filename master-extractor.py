@@ -12,7 +12,6 @@ from time import sleep
 import config
 import time
 
-
 if os.name == 'nt':
     sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf8', buffering=1)
 
@@ -135,12 +134,20 @@ for from_email in config.FROM_EMAILS:
                                     pass
 
                                 # Get Card Information
-                                if card_type is not None:
+                                if card_type == "GameStop":
+                                    try:
+                                        card_amount = browser.find_element_by_xpath('//*[@id="main"]/h1/span').text.replace('$', '').replace('USD', '').strip() + '.00'
+                                        card_number = browser.find_element_by_xpath('//*[@id="cardNumber2"]').text.replace(" ","")
+                                        card_pin = browser.find_element_by_xpath('//*[@id="main"]/div[4]/p[2]/span').text
+                                    except:
+                                        input('Couldnt get card info for ' + card_type + '. Please let h4xdaplanet or tony know')
+                                        raise
+
+                                elif card_type is not None:
                                     try:
                                         card_amount = browser.find_element_by_xpath('//*[@id="main"]/div[1]/div[2]/h2').text.replace('$', '').strip() + '.00'
                                         card_number = browser.find_element_by_xpath('//*[@id="cardNumber2"]').text.replace(" ","")
                                         card_pin = browser.find_element_by_xpath('//*[@id="main"]/div[2]/div[2]/p[2]/span').text
-
                                     except:
                                         input('Couldnt get card info for ' + card_type + '. Please let h4xdaplanet or tony know')
                                         raise
