@@ -1,11 +1,16 @@
 ## Contributors
 - @Churn2burn 
-- @h4xdaplanet 
+- @h4xdaplanet (Spay)
 - @Tony 
+- @Michael (Kroger)
 
 # giftcard-extractor
 This is a modified version of the ppdg-extractor.  
 
+## Change Log (3/10/2019)
+ - Modularized Parsing Code 
+ - Added Kroger support (only tested with Best Buy and Kohl's)
+ 
 ## Change Log (1/22/2019)
  - Added SPay Support
  - Added ability to search for multiple FROM addresses 
