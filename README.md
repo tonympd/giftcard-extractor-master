@@ -3,13 +3,19 @@
 - @h4xdaplanet (Spay)
 - @Tony 
 - @Michael (Kroger)
+- @VoyagingDoc (Newegg)
 
 # giftcard-extractor
-This is a modified version of the ppdg-extractor.  
+This is a modified version of the ppdg-extractor to support the following:
+ - Paypal Digital Gifts
+ - Samsung Pay
+ - Kroger
+ - Newegg
 
 ## Change Log (3/10/2019)
  - Modularized Parsing Code 
  - Added Kroger support (only tested with Best Buy and Kohl's)
+ - Added Newegg support (only tested with Lowes, does not currently support screen shots)
  
 ## Change Log (1/22/2019)
  - Added SPay Support

@@ -15,14 +15,14 @@ IMAP_PASSWORD = 'XXXXXXXXXX'
 
 FOLDER = 'XXXXXXXXXX'
 
-FROM_EMAILS = ['gifts@paypal.com', 'no-reply@samsungpay.com']
+FROM_EMAILS = ['gifts@paypal.com', 'no-reply@samsungpay.com', 'info@newegg.com', 'customerservice@giftcardmall.com']
 
 # Gift Card Settings
 card_amount = '//*[@id="app"]/div/div/div/div/section/div/div[1]/div[2]/div/dl[1]/dd'
 card_number = '//*[@id="app"]/div/div/div/div/section/div/div[1]/div[2]/div/dl[2]/dd'
 card_pin = '//*[@id="app"]/div/div/div/div/section/div/div[1]/div[2]/div[2]/dl[3]/dd'
 
-SAVE_SCREENSHOTS = True
+SAVE_SCREENSHOTS = False
 
 # CSV Output Formats:
 # TCB: card_number, card_pin, card_amount
