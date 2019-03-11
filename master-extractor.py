@@ -11,6 +11,7 @@ from selenium import webdriver
 from time import sleep
 import config
 import time
+import json
 
 
 def parse_activationspot(egc_link):
@@ -146,6 +147,55 @@ def parse_kroger(egc_link):
     return gift_card
 
 
+def parse_newegg(egc_link):
+
+    link_type = 'newegg'
+
+    # Open the link in the browser
+    browser.get(egc_link['href'])
+
+    if (len(browser.find_elements_by_id('lblHumanBarcodeReadable')) > 0 and len(browser.find_elements_by_id('imgCertBarCode')) > 0):
+        card_brand = 'Regal'
+        card_amount = '{0:.2f}'.format(float(browser.find_element_by_id('lblCertAmount').text.replace('$', '').strip()))
+        card_number = browser.find_element_by_id('lblHumanBarcodeReadable').text.replace(' ', '').strip()
+        card_pin = browser.find_element_by_id('lblPin').text.strip()
+        #order_recipient = browser.find_element_by_id('lblRecipient').text.strip()
+        redeem_flag = 1
+
+    elif len(browser.find_elements_by_id('imgCertBarCode')) > 0:
+        card_brand = 'Nike'
+        card_amount = '{0:.2f}'.format(float(browser.find_element_by_id('lblCertAmount').text.replace('$', '').strip()))
+        nike_barcode_src = browser.find_element_by_id('imgCertBarCode').get_attribute('src')
+        card_number_pos = nike_barcode_src.find('&CBID=')
+        card_number = nike_barcode_src[card_number_pos + 6:card_number_pos + 25]
+        card_pin = browser.find_element_by_id('lblPin').text.strip()
+        #order_recipient = browser.find_element_by_id('lblRecipient').text.strip()
+        redeem_flag = 1
+
+    elif len(browser.find_elements_by_id('ids-configuration')) > 0:
+        card_element = browser.find_element_by_id('ids-configuration')
+        card_data = json.loads(card_element.get_attribute('data-certificate'))
+        card_configuration = json.loads(card_element.get_attribute('data-configuration'))
+        card_brand = card_configuration[0]['settings']['brandName'].replace(u"\u00AE", '').replace("'", '')
+        card_amount = '{0:.2f}'.format(card_data['CurrentBalance'])
+        card_number = card_data['CardNumber']
+        card_pin = str(card_data['Pin'])
+        redeem_flag = 0
+
+    if len(card_pin) < 1:
+        card_pin = 'N/A'
+
+    # Create Gift Card Dictionary
+    gift_card = {'type': link_type,
+                 'brand': card_brand,
+                 'amount': card_amount,
+                 'number': card_number,
+                 'pin': card_pin,
+                 'redeem_flag': redeem_flag}
+
+    return gift_card
+
+
 def parse_ppdg(egc_link):
 
     link_type = 'PPDG'
@@ -205,6 +255,8 @@ def take_screenshot(gift_card):
     if not os.path.exists(screenshots_dir):
         os.makedirs(screenshots_dir)
 
+    supported = True
+
     # Save a screenshot
     if gift_card['type'] == 'PPDG':
         element = browser.find_element_by_xpath('//*[@id="app"]/div/div/div/div/section/div/div[1]/div[2]')
@@ -214,28 +266,32 @@ def take_screenshot(gift_card):
         element = browser.find_element_by_xpath('//*[@id="main"]/div[1]')
     elif gift_card['type'] == 'kroger':
         element = browser.find_element_by_xpath('//*[@id="main"]/div[2]')
-
-    location = element.location
-
-    size = element.size
-    screenshot_name = os.path.join(screenshots_dir, gift_card['number'] + '.png')
-    screenshot_name_new = os.path.join(screenshots_dir, gift_card['number'] + '.jpg')
-    browser.save_screenshot(screenshot_name)
-
-    im = Image.open(screenshot_name)
-    left = location['x']
-    top = location['y']
-    right = location['x'] + size['width']
-
-    if gift_card['redeem_flag'] == 1:
-        bottom = location['y'] + size['height'] - 80
     else:
-        bottom = location['y'] + size['height']
+        print("Screen Shots are not currently supported for {}".format(gift_card['type']))
+        supported = False
 
-    im = im.crop((left, top, right, bottom))
-    im.convert('RGB').save(screenshot_name_new)
-    sleep(0.1)
-    os.remove(screenshot_name)
+    if supported:
+        location = element.location
+
+        size = element.size
+        screenshot_name = os.path.join(screenshots_dir, gift_card['number'] + '.png')
+        screenshot_name_new = os.path.join(screenshots_dir, gift_card['number'] + '.jpg')
+        browser.save_screenshot(screenshot_name)
+
+        im = Image.open(screenshot_name)
+        left = location['x']
+        top = location['y']
+        right = location['x'] + size['width']
+
+        if gift_card['redeem_flag'] == 1:
+            bottom = location['y'] + size['height'] - 80
+        else:
+            bottom = location['y'] + size['height']
+
+        im = im.crop((left, top, right, bottom))
+        im.convert('RGB').save(screenshot_name_new)
+        sleep(0.1)
+        os.remove(screenshot_name)
 
 
 def write_card(gift_card):
@@ -320,6 +376,17 @@ for from_email in config.FROM_EMAILS:
                             egc_link = msg_parsed.select_one("a[href*=activationspot]")
                             gift_card = parse_activationspot(egc_link)
 
+                        # Newegg
+                        elif msg_parsed.find_all("a", text="View and Print the card") is not None:
+                            egc_links = msg_parsed.find_all("a", text=" View and Print the card ")
+
+                            gift_cards = []
+                            if egc_links is not None:
+                                for egc_link in egc_links:
+                                    gift_card = parse_newegg(egc_link)
+                                    gift_cards.append(gift_card)
+                                    time.sleep(3)
+
                         # Kroger
                         elif(msg_parsed.find_all("a", text="Redeem your eGift") or msg_parsed.find_all("a", text="Click to Access eGift")) is not None:
                             egc_links = msg_parsed.find_all("a", text="Redeem your eGift") or msg_parsed.find_all("a", text="Click to Access eGift")
@@ -334,20 +401,22 @@ for from_email in config.FROM_EMAILS:
                             print("ERROR: Couldn't determine gift card type")
 
                         # Write Card to CSV
-                        if gift_cards is not None:
-                            for gift_card in gift_cards:
+                        try:
+                            if gift_cards is not None:
+                                for gift_card in gift_cards:
+                                    write_card(gift_card)
+
+                                    # Grab Screenshots
+                                    if config.SAVE_SCREENSHOTS:
+                                        take_screenshot(gift_card)
+
+                        except NameError:
+                            if 'number' in gift_card:
                                 write_card(gift_card)
 
                                 # Grab Screenshots
                                 if config.SAVE_SCREENSHOTS:
                                     take_screenshot(gift_card)
-
-                        elif 'number' in gift_card:
-                            write_card(gift_card)
-
-                            # Grab Screenshots
-                            if config.SAVE_SCREENSHOTS:
-                                take_screenshot(gift_card)
 
                     else:
                         print("ERROR: Unable to fetch message {}, skipping.".format(msg_id.decode('UTF-8')))

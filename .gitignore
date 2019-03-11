@@ -2,6 +2,7 @@
 *.csv
 *.xlsx
 screenshots/*
+OLD/*
 .idea/*
 config.py
 
