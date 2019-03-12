@@ -41,7 +41,8 @@ def parse_activationspot(egc_link):
     # Normal Card
     elif card_brand is not None:
         try:
-            card_amount = browser.find_element_by_xpath('//*[@id="main"]/div[1]/div[2]/h2').text.replace('$','').strip() + '.00'
+            card_amount = browser.find_element_by_xpath('//*[@id="main"]/div[1]/div[2]/h2').text.replace(
+                '$','').strip() + '.00'
             card_number = browser.find_element_by_xpath('//*[@id="cardNumber2"]').text.replace(" ", "")
             card_pin = browser.find_element_by_xpath('//*[@id="main"]/div[2]/div[2]/p[2]/span').text
         except:
@@ -64,7 +65,8 @@ def parse_activationspot(egc_link):
                 pass
 
             try:
-                card_amount = browser.find_element_by_xpath('//*[@id="main"]/div[1]/div[2]/h2').text.replace('$','').strip() + '.00'
+                card_amount = browser.find_element_by_xpath('//*[@id="main"]/div[1]/div[2]/h2').text.replace(
+                    '$','').strip() + '.00'
             except:
                 input('Couldnt get card info for ' + card_brand + '. Please let h4xdaplanet or tony know')
                 raise
@@ -154,7 +156,8 @@ def parse_newegg(egc_link):
     # Open the link in the browser
     browser.get(egc_link['href'])
 
-    if (len(browser.find_elements_by_id('lblHumanBarcodeReadable')) > 0 and len(browser.find_elements_by_id('imgCertBarCode')) > 0):
+    if (len(browser.find_elements_by_id('lblHumanBarcodeReadable')) > 0 and
+            len(browser.find_elements_by_id('imgCertBarCode')) > 0):
         card_brand = 'Regal'
         card_amount = '{0:.2f}'.format(float(browser.find_element_by_id('lblCertAmount').text.replace('$', '').strip()))
         card_number = browser.find_element_by_id('lblHumanBarcodeReadable').text.replace(' ', '').strip()
@@ -218,15 +221,15 @@ def parse_ppdg(egc_link):
     card_brand = re.compile(r'(.*) Terms and Conditions').match(card_brand).group(1)
 
     # Get the card amount
-    card_amount = browser.find_element_by_xpath(config.card_amount).text.replace('$', '').strip() + '.00'
+    card_amount = browser.find_element_by_xpath(config.PPDG_CARD_AMOUNT).text.replace('$', '').strip() + '.00'
 
     # Get the card number
-    card_number = browser.find_element_by_xpath(config.card_number).text
+    card_number = browser.find_element_by_xpath(config.PPDG_CARD_NUMBER).text
 
     # Get the card PIN
-    card_pin = browser.find_elements_by_xpath(config.card_pin)
+    card_pin = browser.find_elements_by_xpath(config.PPDG_CARD_PIN)
     if len(card_pin) > 0:
-        card_pin = browser.find_element_by_xpath(config.card_pin).text
+        card_pin = browser.find_element_by_xpath(config.PPDG_CARD_PIN).text
     else:
         card_pin = "N/A"
 
@@ -341,7 +344,8 @@ for from_email in config.FROM_EMAILS:
 
         else:
             # Open the CSV for writing
-            with open(from_email + '_cards_' + datetime.now().strftime('%m-%d-%Y_%H%M%S') + '.csv', 'w', newline='') as csv_file:
+            with open(from_email + '_cards_' + datetime.now().strftime('%m-%d-%Y_%H%M%S') +
+                      '.csv', 'w', newline='') as csv_file:
                 # Start the browser and the CSV writer
                 browser = webdriver.Chrome(config.CHROMEDRIVER_PATH)
                 csv_writer = csv.writer(csv_file)
@@ -367,8 +371,11 @@ for from_email in config.FROM_EMAILS:
                         msg_parsed = BeautifulSoup(msg_html, 'html.parser')
 
                         # PPDG
-                        if (msg_parsed.find("a", text="View My Code") or msg_parsed.find("a", text="Unwrap Your Gift")) is not None:
-                            egc_link = msg_parsed.find("a", text="View My Code") or msg_parsed.find("a", text="Unwrap Your Gift")
+                        if (msg_parsed.find("a", text="View My Code") or
+                            msg_parsed.find("a", text="Unwrap Your Gift")) is not None:
+
+                            egc_link = msg_parsed.find("a", text="View My Code") or \
+                                       msg_parsed.find("a", text="Unwrap Your Gift")
                             gift_card = parse_ppdg(egc_link)
 
                         # Samsung Pay
@@ -388,8 +395,11 @@ for from_email in config.FROM_EMAILS:
                                     time.sleep(3)
 
                         # Kroger
-                        elif(msg_parsed.find_all("a", text="Redeem your eGift") or msg_parsed.find_all("a", text="Click to Access eGift")) is not None:
-                            egc_links = msg_parsed.find_all("a", text="Redeem your eGift") or msg_parsed.find_all("a", text="Click to Access eGift")
+                        elif(msg_parsed.find_all("a", text="Redeem your eGift") or
+                             msg_parsed.find_all("a", text="Click to Access eGift")) is not None:
+
+                            egc_links = msg_parsed.find_all("a", text="Redeem your eGift") or \
+                                        msg_parsed.find_all("a", text="Click to Access eGift")
 
                             gift_cards = []
                             if egc_links is not None:
