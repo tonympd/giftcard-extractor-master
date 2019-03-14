@@ -55,7 +55,6 @@ def parse_activationspot(egc_link):
         try:
             card_brand = browser.find_element_by_xpath('//*[@id="main"]/h1/strong').text.strip().split()[1]
         except:
-            input('Cant find card info, please let h4xdaplanet or Tony know')
             pass
 
         if card_brand is not None:
@@ -73,6 +72,16 @@ def parse_activationspot(egc_link):
 
             card_number = browser.find_element_by_xpath('//*[@id="main"]/div[2]/div[2]/p/span').text
             card_pin = browser.find_element_by_xpath('//*[@id="main"]/div[2]/div[2]/p[2]/span').text
+
+        # Apple Bees
+        elif card_brand is None:
+            try:
+                card_amount = browser.find_element_by_xpath('//*[@id="amount"]/span').text.replace('$','').strip()
+                card_number = browser.find_element_by_xpath('//*[@id="cardNumber2"]').text
+                card_pin = browser.find_element_by_xpath('//*[@id="securityCode"]').text
+            except:
+                input('Couldnt get card info. Please let h4xdaplanet or tony know')
+                raise
 
     # Ensure there is a pin number
     if len(card_pin) == 0:
@@ -344,8 +353,7 @@ for from_email in config.FROM_EMAILS:
 
         else:
             # Open the CSV for writing
-            with open(from_email + '_cards_' + datetime.now().strftime('%m-%d-%Y_%H%M%S') +
-                      '.csv', 'w', newline='') as csv_file:
+            with open('cards_' + datetime.now().strftime('%m-%d-%Y_%H%M%S') + '.csv', 'w', newline='') as csv_file:
                 # Start the browser and the CSV writer
                 browser = webdriver.Chrome(config.CHROMEDRIVER_PATH)
                 csv_writer = csv.writer(csv_file)
