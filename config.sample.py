@@ -24,6 +24,8 @@ PPDG_CARD_PIN = '//*[@id="app"]/div/div/div/div/section/div/div[1]/div[2]/div[2]
 
 SAVE_SCREENSHOTS = False
 
+DEBUG = False
+
 # CSV Output Formats:
 # TCB: card_number, card_pin, card_amount
 # GCW: card_amount, card_number, card_pin
