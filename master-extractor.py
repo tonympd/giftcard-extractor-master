@@ -338,7 +338,8 @@ mailbox.select(config.FOLDER)
 
 for from_email in config.FROM_EMAILS:
 
-    print("---> Processing Gift Cards from {}".format(from_email))
+    if config.DEBUG:
+        print("---> Processing Gift Cards from {}".format(from_email))
 
     # Search for matching emails
     status, messages = mailbox.search(None, '(FROM {})'.format(from_email))
@@ -349,18 +350,20 @@ for from_email in config.FROM_EMAILS:
 
         if len(messages) < 1:
             # No matching messages, stop
-            print("No matching messages found for {}, nothing to do.".format(from_email))
+            if config.DEBUG:
+                print("No matching messages found for {}, nothing to do.".format(from_email))
 
         else:
             # Open the CSV for writing
-            with open('cards_' + datetime.now().strftime('%m-%d-%Y_%H%M%S') + '.csv', 'w', newline='') as csv_file:
+            with open(from_email + '_cards_' + datetime.now().strftime('%m-%d-%Y_%H%M%S') + '.csv', 'w', newline='') as csv_file:
                 # Start the browser and the CSV writer
                 browser = webdriver.Chrome(config.CHROMEDRIVER_PATH)
                 csv_writer = csv.writer(csv_file)
 
                 # For each matching email...
                 for msg_id in messages:
-                    print("--> Processing message id {}...".format(msg_id.decode('UTF-8')))
+                    if config.DEBUG:
+                        print("--> Processing message id {}...".format(msg_id.decode('UTF-8')))
 
                     # Fetch it from the server
                     status, data = mailbox.fetch(msg_id, '(RFC822)')
