@@ -20,72 +20,56 @@ def parse_activationspot(egc_link):
 
     # Open the link in the browser
     browser.get(egc_link['href'])
+    card_parsed = BeautifulSoup(browser.page_source, 'html.parser')
 
-    # first set of xpath of most spay gc
-    try:
-        card_brand = browser.find_element_by_xpath('//*[@id="retailerName"]').get_attribute("value")
-    except:
-        card_brand = None
+    gcm_format = False
 
-    # Get Card Information
-    if card_brand == 'GameStop':
-        try:
-            card_amount = browser.find_element_by_xpath('//*[@id="main"]/h1/span').text.replace('$', '').replace(
-                'USD', '').strip() + '.00'
-            card_number = browser.find_element_by_xpath('//*[@id="cardNumber2"]').text.replace(" ", "")
-            card_pin = browser.find_element_by_xpath('//*[@id="main"]/div[4]/p[2]/span').text
-        except:
-            input('Couldnt get card info for ' + card_brand + '. Please let h4xdaplanet or tony know')
-            raise
+    # First find if its typical format
+    if card_parsed.find("input", id="retailerName") is not None:
+        card_brand = card_parsed.find("input", id="retailerName")['value']
+        gcm_format = True
 
-    # Normal Card
-    elif card_brand is not None:
-        try:
-            card_amount = browser.find_element_by_xpath('//*[@id="main"]/div[1]/div[2]/h2').text.replace(
-                '$','').strip() + '.00'
-            card_number = browser.find_element_by_xpath('//*[@id="cardNumber2"]').text.replace(" ", "")
-            card_pin = browser.find_element_by_xpath('//*[@id="main"]/div[2]/div[2]/p[2]/span').text
-        except:
-            input('Couldnt get card info for ' + card_brand + '. Please let h4xdaplanet or tony know')
-            raise
+    # AppleBee
+    elif card_parsed.find("div", {"class": "showCard"}) is not None:
+        card_brand = card_parsed.find("div", {"class": "showCard"}).find("img")['alt'].replace("'s eGift Card", "")
 
-    # Wayfair or Columbia GC
-    elif card_brand is None:
+    else:
+        print("Unknown card brand for {}".format(link_type))
 
-        try:
-            card_brand = browser.find_element_by_xpath('//*[@id="main"]/h1/strong').text.strip().split()[1]
-        except:
-            pass
+    if gcm_format:
+        if card_parsed.find("input", id="cardNumber") is not None:
+            card_number = card_parsed.find("input", id="cardNumber")['value']
+        else:
+            card_number = "N/A"
 
-        if card_brand is not None:
-            try:
-                card_amount = browser.find_element_by_xpath('//*[@id="amount"]').text.replace('$','').strip() + '.00'
-            except:
-                pass
+        if card_parsed.find("input", id="pinNumber") is not None:
+            card_pin = card_parsed.find("input", id="pinNumber")['value']
+        else:
+            card_pin = "N/A"
 
-            try:
-                card_amount = browser.find_element_by_xpath('//*[@id="main"]/div[1]/div[2]/h2').text.replace(
-                    '$','').strip() + '.00'
-            except:
-                input('Couldnt get card info for ' + card_brand + '. Please let h4xdaplanet or tony know')
-                raise
+        if card_brand == 'Best Buy':
+            header = card_parsed.find("div", {"class": "headingText"}).find("h1").text
+            match = re.search('\$(\d*)', header)
+            if match:
+                card_amount = match.group(1).strip() + '.00'
 
-            card_number = browser.find_element_by_xpath('//*[@id="main"]/div[2]/div[2]/p/span').text
-            card_pin = browser.find_element_by_xpath('//*[@id="main"]/div[2]/div[2]/p[2]/span').text
+        elif card_brand == 'GameStop':
+            header = card_parsed.find("h1").find("span", {"class": "red"}).text
+            match = re.search('\$(\d*)', header)
+            if match:
+                card_amount = match.group(1).strip() + '.00'
 
-        # Apple Bees
-        elif card_brand is None:
-            try:
-                card_amount = browser.find_element_by_xpath('//*[@id="amount"]/span').text.replace('$','').strip()
-                card_number = browser.find_element_by_xpath('//*[@id="cardNumber2"]').text
-                card_pin = browser.find_element_by_xpath('//*[@id="securityCode"]').text
-            except:
-                input('Couldnt get card info. Please let h4xdaplanet or tony know')
-                raise
+        else:
+            card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find("h2").text.replace('$','').strip()+'.00'
 
-    # Ensure there is a pin number
-    if len(card_pin) == 0:
-        card_pin = "N/A"
+    elif card_brand == 'Applebee':
+
+        card_number = card_parsed.find("span", id="cardNumber2").text
+        card_pin = card_parsed.find("span", id="securityCode").text
+        card_amount = card_parsed.find("div", id="amount").find("span").text.replace("$", "")
+
+    else:
+        print("Unknown card brand for {}".format(link_type))
 
     # set redeem_flag to zero to stay compatible with ppdg (effects screen capture)
     redeem_flag = 0
@@ -107,68 +91,25 @@ def parse_kroger(egc_link):
 
     # Open the link in the browser
     browser.get(egc_link['href'])
+    card_parsed = BeautifulSoup(browser.page_source, 'html.parser')
 
-    # Get card details
-    try:
-        card_brand = browser.find_element_by_xpath('//*[@id="main"]/div[1]/div[1]/h1').text
-        if 'Best Buy' in card_brand:
-            card_brand = 'Best Buy'
-    except:
-        card_brand = None
+    card_brand = card_parsed.find("input", id="retailerName")['value'].replace('®', '')
+    card_number = card_parsed.find("input", id="cardNumber")['value']
 
-    if card_brand is None:
-        try:
-            card_brand = browser.find_element_by_xpath('//*[@id="main"]/p/strong').text
-            if 'Columbia' in card_brand:
-                card_brand = 'Columbia Sportswear'
-        except:
-            card_brand = None
-
-    if card_brand is not None:
-
-        try:
-            card_amount = browser.find_element_by_xpath('//*[@id="main"]/div[1]/div[1]/h1').text
-            card_amount = re.search('\$(?P<value>\d*)', card_amount).group(0).replace('$','')
-        except:
-            card_amount = None
-
-        if card_amount is None:
-            try:
-                card_amount = browser.find_element_by_xpath('//*[@id="amount"]').text
-            except:
-                card_amount = None
-
-        # Columbia
-        if card_amount is None:
-            try:
-                card_amount = browser.find_element_by_xpath('//*[@id="main"]/div[1]/div[2]/h2').text
-            except:
-                card_amount = None
-
-        card_number = browser.find_element_by_xpath('//*[@id="cardNumber2"]').text.replace(" ", "")
-
-        try:
-            card_pin = browser.find_element_by_xpath('//*[@id="Span2"]').text.replace(" ", "")
-        except:
-            card_pin = None
-
-        if card_pin is None:
-            try:
-                card_pin = browser.find_element_by_xpath('//*[@id="cardInfo"]/p[3]/span').text.replace(" ", "")
-            except:
-                card_pin = None
-
-        # Columbia
-        if card_pin is None:
-            try:
-                card_pin = browser.find_element_by_xpath('//*[@id="main"]/div[2]/div[2]/p[2]/span').text.replace(" ", "")
-            except:
-                card_pin = None
-
-        if card_pin is None or len(card_pin) < 1:
-            card_pin = 'N/A'
+    if card_parsed.find("input", id="pinNumber") is not None:
+        card_pin = card_parsed.find("input", id="pinNumber")['value']
     else:
-        print("Unknown Kroger Card Brand")
+        card_pin = "N/A"
+
+    if card_brand == 'Best Buy':
+
+        header = card_parsed.find("div", {"class": "headingText"}).find("h1").text
+        match = re.search('\$(\d*)', header)
+        if match:
+            card_amount = match.group(1).strip() + '.00'
+
+    else:
+        card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find("h2").text.replace('$', '').strip()+'.00'
 
     # set redeem_flag to zero to stay compatible with ppdg (effects screen capture)
     redeem_flag = 0
@@ -379,10 +320,11 @@ for from_email in config.FROM_EMAILS:
             if config.DEBUG:
                 print("No matching messages found for {}, nothing to do.".format(from_email))
 
-
         else:
             # Open the CSV for writing
-            with open(from_email + '_cards_' + datetime.now().strftime('%m-%d-%Y_%H%M%S') + '.csv', 'w', newline='') as csv_file:
+            with open(from_email + '_cards_' + datetime.now().strftime('%m-%d-%Y_%H%M%S') + '.csv',
+                      'w', newline='') as csv_file:
+
                 # Start the browser and the CSV writer
                 browser = webdriver.Chrome(config.CHROMEDRIVER_PATH)
                 csv_writer = csv.writer(csv_file)
@@ -408,6 +350,7 @@ for from_email in config.FROM_EMAILS:
                         # Parse the message
                         msg_parsed = BeautifulSoup(msg_html, 'html.parser')
 
+                        # Determine Message type to parse accordingly
                         # PPDG
                         if (msg_parsed.find("a", text="View My Code") or
                             msg_parsed.find("a", text="Unwrap Your Gift")) is not None:
@@ -421,7 +364,6 @@ for from_email in config.FROM_EMAILS:
 
                         # Samsung Pay
                         elif msg_parsed.select_one("a[href*=activationspot]") is not None:
-
                             if config.DEBUG:
                                 print('SPAY')
 
@@ -430,10 +372,8 @@ for from_email in config.FROM_EMAILS:
 
                         # Newegg
                         elif len(msg_parsed.find_all("a", text="View and Print the card")) > 0:
-
                             if config.DEBUG:
                                 print('Newegg')
-                                print(len(msg_parsed.find_all("a", text="View and Print the card")))
 
                             egc_links = msg_parsed.find_all("a", text=" View and Print the card ")
 
@@ -447,7 +387,6 @@ for from_email in config.FROM_EMAILS:
                         # Kroger
                         elif (len(msg_parsed.find_all("a", text=re.compile('.*Redeem your eGift'))) > 0) or \
                              (len(msg_parsed.find_all("a", text="Click to Access eGift")) > 0):
-
                             if config.DEBUG:
                                 print('Kroger')
 
