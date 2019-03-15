@@ -116,33 +116,59 @@ def parse_kroger(egc_link):
     except:
         card_brand = None
 
-    try:
-        card_amount = browser.find_element_by_xpath('//*[@id="main"]/div[1]/div[1]/h1').text
-        card_amount = re.search('\$(?P<value>\d*)', card_amount).group(0).replace('$','')
-    except:
-        card_amount = None
-
-    if card_amount is None:
+    if card_brand is None:
         try:
-            card_amount = browser.find_element_by_xpath('//*[@id="amount"]').text
+            card_brand = browser.find_element_by_xpath('//*[@id="main"]/p/strong').text
+            if 'Columbia' in card_brand:
+                card_brand = 'Columbia Sportswear'
+        except:
+            card_brand = None
+
+    if card_brand is not None:
+
+        try:
+            card_amount = browser.find_element_by_xpath('//*[@id="main"]/div[1]/div[1]/h1').text
+            card_amount = re.search('\$(?P<value>\d*)', card_amount).group(0).replace('$','')
         except:
             card_amount = None
 
-    card_number = browser.find_element_by_xpath('//*[@id="cardNumber2"]').text.replace(" ", "")
+        if card_amount is None:
+            try:
+                card_amount = browser.find_element_by_xpath('//*[@id="amount"]').text
+            except:
+                card_amount = None
 
-    try:
-        card_pin = browser.find_element_by_xpath('//*[@id="Span2"]').text.replace(" ", "")
-    except:
-        card_pin = None
+        # Columbia
+        if card_amount is None:
+            try:
+                card_amount = browser.find_element_by_xpath('//*[@id="main"]/div[1]/div[2]/h2').text
+            except:
+                card_amount = None
 
-    if card_pin is None:
+        card_number = browser.find_element_by_xpath('//*[@id="cardNumber2"]').text.replace(" ", "")
+
         try:
-            card_pin = browser.find_element_by_xpath('//*[@id="cardInfo"]/p[3]/span').text.replace(" ", "")
+            card_pin = browser.find_element_by_xpath('//*[@id="Span2"]').text.replace(" ", "")
         except:
             card_pin = None
 
-    if len(card_pin) < 1:
-        card_pin = 'N/A'
+        if card_pin is None:
+            try:
+                card_pin = browser.find_element_by_xpath('//*[@id="cardInfo"]/p[3]/span').text.replace(" ", "")
+            except:
+                card_pin = None
+
+        # Columbia
+        if card_pin is None:
+            try:
+                card_pin = browser.find_element_by_xpath('//*[@id="main"]/div[2]/div[2]/p[2]/span').text.replace(" ", "")
+            except:
+                card_pin = None
+
+        if card_pin is None or len(card_pin) < 1:
+            card_pin = 'N/A'
+    else:
+        print("Unknown Kroger Card Brand")
 
     # set redeem_flag to zero to stay compatible with ppdg (effects screen capture)
     redeem_flag = 0
@@ -353,6 +379,7 @@ for from_email in config.FROM_EMAILS:
             if config.DEBUG:
                 print("No matching messages found for {}, nothing to do.".format(from_email))
 
+
         else:
             # Open the CSV for writing
             with open(from_email + '_cards_' + datetime.now().strftime('%m-%d-%Y_%H%M%S') + '.csv', 'w', newline='') as csv_file:
@@ -385,17 +412,29 @@ for from_email in config.FROM_EMAILS:
                         if (msg_parsed.find("a", text="View My Code") or
                             msg_parsed.find("a", text="Unwrap Your Gift")) is not None:
 
+                            if config.DEBUG:
+                                print('PPDG')
+
                             egc_link = msg_parsed.find("a", text="View My Code") or \
                                        msg_parsed.find("a", text="Unwrap Your Gift")
                             gift_card = parse_ppdg(egc_link)
 
                         # Samsung Pay
                         elif msg_parsed.select_one("a[href*=activationspot]") is not None:
+
+                            if config.DEBUG:
+                                print('SPAY')
+
                             egc_link = msg_parsed.select_one("a[href*=activationspot]")
                             gift_card = parse_activationspot(egc_link)
 
                         # Newegg
-                        elif msg_parsed.find_all("a", text="View and Print the card") is not None:
+                        elif len(msg_parsed.find_all("a", text="View and Print the card")) > 0:
+
+                            if config.DEBUG:
+                                print('Newegg')
+                                print(len(msg_parsed.find_all("a", text="View and Print the card")))
+
                             egc_links = msg_parsed.find_all("a", text=" View and Print the card ")
 
                             gift_cards = []
@@ -406,11 +445,16 @@ for from_email in config.FROM_EMAILS:
                                     time.sleep(3)
 
                         # Kroger
-                        elif(msg_parsed.find_all("a", text="Redeem your eGift") or
-                             msg_parsed.find_all("a", text="Click to Access eGift")) is not None:
+                        elif (len(msg_parsed.find_all("a", text=re.compile('.*Redeem your eGift'))) > 0) or \
+                             (len(msg_parsed.find_all("a", text="Click to Access eGift")) > 0):
 
-                            egc_links = msg_parsed.find_all("a", text="Redeem your eGift") or \
-                                        msg_parsed.find_all("a", text="Click to Access eGift")
+                            if config.DEBUG:
+                                print('Kroger')
+
+                            egc_links = msg_parsed.find_all("a", text=re.compile('.*Redeem your eGift'))
+
+                            if len(egc_links) == 0:
+                                egc_links = msg_parsed.find_all("a", text="Click to Access eGift")
 
                             gift_cards = []
                             if egc_links is not None:
@@ -419,6 +463,7 @@ for from_email in config.FROM_EMAILS:
                                     gift_cards.append(gift_card)
                                     time.sleep(3)
                         else:
+                            print(msg_parsed)
                             print("ERROR: Couldn't determine gift card type")
 
                         # Write Card to CSV
