@@ -84,6 +84,38 @@ def parse_activationspot(egc_link):
 
     return gift_card
 
+def parse_staples(egc_link):
+
+    link_type = 'staples'
+
+    # Open the link in the browser
+    browser.get(egc_link['href'])
+    card_parsed = BeautifulSoup(browser.page_source, 'html.parser')
+
+    card_brand = card_parsed.find("input", id="retailerName")['value'].replace('®', '')
+    card_number = card_parsed.find("input", id="cardNumber")['value']
+
+    if card_parsed.find("input", id="pinNumber") is not None:
+        card_pin = card_parsed.find("input", id="pinNumber")['value']
+    else:
+        card_pin = "N/A"
+
+
+    card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find("h2").text.replace('$', '').strip()+'.00'
+
+    # set redeem_flag to zero to stay compatible with ppdg (effects screen capture)
+    redeem_flag = 0
+
+    # Create Gift Card Dictionary
+    gift_card = {'type': link_type,
+                 'brand': card_brand,
+                 'amount': card_amount,
+                 'number': card_number,
+                 'pin': card_pin,
+                 'redeem_flag': redeem_flag}
+
+    return gift_card
+
 
 def parse_kroger(egc_link):
 
@@ -401,6 +433,21 @@ for from_email in config.FROM_EMAILS:
                                     gift_card = parse_kroger(egc_link)
                                     gift_cards.append(gift_card)
                                     time.sleep(3)
+
+                        # Staples
+                        elif (len(msg_parsed.find_all("a", text=re.compile('.*View Gift'))) > 0):
+                            if config.DEBUG:
+                                print('Staples')
+
+                            egc_links = msg_parsed.find_all("a", text=re.compile('.*View Gift'))
+
+                            gift_cards = []
+                            if egc_links is not None:
+                                for egc_link in egc_links:
+                                    gift_card = parse_kroger(egc_link)
+                                    gift_cards.append(gift_card)
+                                    time.sleep(3)
+
                         else:
                             print(msg_parsed)
                             print("ERROR: Couldn't determine gift card type")

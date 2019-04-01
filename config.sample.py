@@ -1,8 +1,8 @@
 import os
 directory = os.path.dirname(os.path.abspath(__file__))
 
-file = 'chromedriver.exe' #Windows
-#file = 'chromedriver.dmg' #Mac
+#file = 'chromedriver.exe' #Windows
+file = 'chromedriver.dmg' #Mac
 
 CHROMEDRIVER_PATH = os.path.join(directory, file)
 
@@ -10,12 +10,12 @@ CHROMEDRIVER_PATH = os.path.join(directory, file)
 IMAP_HOST = 'imap.gmail.com'
 IMAP_PORT = 993
 IMAP_SSL = True
-IMAP_USERNAME = 'XXXXXXXXXX'
-IMAP_PASSWORD = 'XXXXXXXXXX'
+IMAP_USERNAME = 'USERNAME'
+IMAP_PASSWORD = 'PASSWORD'
 
-FOLDER = 'XXXXXXXXXX'
+FOLDER =  'GCM'
 
-FROM_EMAILS = ['gifts@paypal.com', 'no-reply@samsungpay.com', 'info@newegg.com', 'customerservice@giftcardmall.com']
+FROM_EMAILS = ['gifts@paypal.com', 'no-reply@samsungpay.com', 'info@newegg.com', 'customerservice@giftcardmall.com', 'DoNotReply.Staples@blackhawk-net.com']
 
 # Gift Card Settings
 PPDG_CARD_AMOUNT = '//*[@id="app"]/div/div/div/div/section/div/div[1]/div[2]/div/dl[1]/dd'
