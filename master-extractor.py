@@ -125,8 +125,13 @@ def parse_kroger(egc_link):
     browser.get(egc_link['href'])
     card_parsed = BeautifulSoup(browser.page_source, 'html.parser')
 
-    card_brand = card_parsed.find("input", id="retailerName")['value'].replace('®', '')
-    card_number = card_parsed.find("input", id="cardNumber")['value']
+    try:
+        card_brand = card_parsed.find("input", id="retailerName")['value'].replace('®', '')
+        card_number = card_parsed.find("input", id="cardNumber")['value']
+    except TypeError:
+        card_number = card_parsed.find("a", id="redeem").text
+        if card_number[0] == 'X':
+            card_brand = 'iTunes'
 
     if card_parsed.find("input", id="pinNumber") is not None:
         card_pin = card_parsed.find("input", id="pinNumber")['value']
@@ -139,7 +144,9 @@ def parse_kroger(egc_link):
         match = re.search('\$(\d*)', header)
         if match:
             card_amount = match.group(1).strip() + '.00'
-
+    elif card_brand == 'iTunes':
+        description = card_parsed.find("div", {"class": "cardNum"}).find("p", {"class": "large"}).text
+        card_amount = re.search('\$(\d*)', description).group(1).strip() + '.00'
     else:
         card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find("h2").text.replace('$', '').strip()+'.00'
 
@@ -458,7 +465,6 @@ for from_email in config.FROM_EMAILS:
 
                             if len(egc_links) == 0:
                                 egc_links = msg_parsed.find_all("a", text="Click to Access eGift")
-
                             gift_cards = []
                             if egc_links is not None:
                                 for egc_link in egc_links:
