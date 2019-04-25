@@ -115,6 +115,7 @@ def parse_gyft(egc_link):
     return gift_card
 
 
+
 def parse_kroger(egc_link):
 
     link_type = 'kroger'
