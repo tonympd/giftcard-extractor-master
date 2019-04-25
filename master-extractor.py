@@ -85,6 +85,36 @@ def parse_activationspot(egc_link):
     return gift_card
 
 
+def parse_gyft(egc_link):
+
+    link_type = 'gyft'
+
+    # Open the link in the browser
+    browser.get(egc_link['href'])
+
+    if len(browser.find_elements_by_xpath('/html/body/main/aside/div[5]/div/div[2]/div[2]')) > 0:
+        card_brand = browser.find_elements_by_xpath('/html/body/main/aside/table/tbody/tr/td[2]/h6[2]')[0].text
+        card_amount = browser.find_elements_by_xpath('/html/body/main/aside/table/tbody/tr/td[2]/h6[1]')[0].text.replace('$','')
+        card_number = browser.find_elements_by_xpath('/html/body/main/aside/div[5]/div/div[2]/div[2]')[0].text
+        card_pin = browser.find_elements_by_xpath('/html/body/main/aside/div[5]/div/div[4]/div[2]')[0].text
+
+    if len(card_pin) < 1:
+        card_pin = 'N/A'
+
+    # set redeem_flag to zero to stay compatible with ppdg (effects screen capture)
+    redeem_flag = 0
+
+    # Create Gift Card Dictionary
+    gift_card = {'type': link_type,
+                 'brand': card_brand,
+                 'amount': card_amount,
+                 'number': card_number,
+                 'pin': card_pin,
+                 'redeem_flag': redeem_flag}
+
+    return gift_card
+
+
 def parse_kroger(egc_link):
 
     link_type = 'kroger'
@@ -409,6 +439,14 @@ for from_email in config.FROM_EMAILS:
 
                             egc_link = msg_parsed.select_one("a[href*=activationspot]")
                             gift_card = parse_activationspot(egc_link)
+
+                        # Gyft
+                        elif msg_parsed.select_one("a[href*=gyft]") is not None:
+                            if config.DEBUG:
+                                print('GYFT')
+
+                            egc_link = msg_parsed.select_one("a[href*=gyft]")
+                            gift_card = parse_gyft(egc_link)
 
                         # Newegg
                         elif len(msg_parsed.find_all("a", text="View and Print the card")) > 0:
