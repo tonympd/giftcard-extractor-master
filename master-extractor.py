@@ -8,6 +8,7 @@ from datetime import datetime
 from imaplib import IMAP4, IMAP4_SSL
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from time import sleep
 import config
 import time
@@ -107,7 +108,6 @@ def parse_kroger(egc_link):
         card_pin = "N/A"
 
     if card_brand == 'Best Buy':
-
         header = card_parsed.find("div", {"class": "headingText"}).find("h1").text
         match = re.search('\$(\d*)', header)
         if match:
@@ -192,6 +192,7 @@ def parse_ppdg(egc_link):
     # Captcha Testing
     card_type_exists = browser.find_elements_by_xpath(
         '//*[@id="app"]/div/div/div/div/section/div/div[3]/div[2]/div/h2[1]')
+    card_parsed = BeautifulSoup(browser.page_source, 'html.parser')
 
     if card_type_exists:
         pass
@@ -210,9 +211,14 @@ def parse_ppdg(egc_link):
     card_number = browser.find_element_by_xpath(config.PPDG_CARD_NUMBER).text
 
     # Get the card PIN
-    card_pin = browser.find_elements_by_xpath(config.PPDG_CARD_PIN)
+    try:
+        card_pin = browser.find_elements_by_xpath("//*[text()='PIN']/following-sibling::dd")
+    except NoSuchElementException:
+        card_pin = browser.find_elements_by_xpath(config.PPDG_CARD_PIN)
+
+
     if len(card_pin) > 0:
-        card_pin = browser.find_element_by_xpath(config.PPDG_CARD_PIN).text
+        card_pin = card_pin[0].text
     else:
         card_pin = "N/A"
 
@@ -392,6 +398,7 @@ for from_email in config.FROM_EMAILS:
 
                         # Determine Message type to parse accordingly
                         # PPDG
+
                         if (msg_parsed.find("a", text="View My Code") or
                             msg_parsed.find("a", text="Unwrap Your Gift")) is not None:
 
