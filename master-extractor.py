@@ -85,6 +85,28 @@ def parse_activationspot(egc_link):
 
     return gift_card
 
+def parse_costco(egc_link):
+    link_type = 'costco'
+    card_amount = re.search('\$(.\d+)', str(egc_link.find_all("p", style="font-size:20px;")[0].contents[0])).group(1)
+    card_number = egc_link.find_all("p", style="font-size:20px;")[0].find('a').contents[0]
+    if card_number[0] == 'X':
+        card_brand = 'iTunes'
+        card_pin = 'N/A'
+    else:
+        card_brand = ''
+        card_pin = ''
+        print("ERROR: Unsupported gift card type for Costco")
+
+    redeem_flag = 0
+
+    gift_card = {'type': link_type,
+                 'brand': card_brand,
+                 'amount': card_amount,
+                 'number': card_number,
+                 'pin': card_pin,
+                 'redeem_flag': redeem_flag}
+
+    return gift_card    
 
 def parse_gyft(egc_link):
 
@@ -421,7 +443,10 @@ for from_email in config.FROM_EMAILS:
                         if not msg.is_multipart():
                             msg_html = msg.get_payload(decode=True)
                         else:
-                            msg_html = msg.get_payload(1).get_payload(decode=True)
+                            try: 
+                                msg_html = msg.get_payload(1).get_payload(decode=True)
+                            except IndexError:
+                                msg_html = msg.get_payload(0).get_payload(decode=True)
 
                         # Parse the message
                         msg_parsed = BeautifulSoup(msg_html, 'html.parser')
@@ -468,6 +493,18 @@ for from_email in config.FROM_EMAILS:
                                     gift_card = parse_newegg(egc_link)
                                     gift_cards.append(gift_card)
                                     time.sleep(3)
+
+                        # Costco
+                        elif (len(msg_parsed.find_all("div", style="cardStuff")) > 0):
+                            if config.DEBUG:
+                                print('Costco')
+                            egc_links = msg_parsed.find_all("p", id='primaryCode')
+
+                            gift_cards = []
+                            if egc_links is not None:
+                                for egc_link in egc_links:
+                                    gift_card = parse_costco(egc_link)
+                                    gift_cards.append(gift_card)
 
                         # Kroger
                         elif (len(msg_parsed.find_all("a", text=re.compile('.*Redeem your eGift'))) > 0) or \
