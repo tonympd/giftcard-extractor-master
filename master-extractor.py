@@ -60,6 +60,9 @@ def parse_activationspot(egc_link):
             if match:
                 card_amount = match.group(1).strip() + '.00'
 
+        elif card_brand =='Kohl\'s':
+            card_amount = card_parsed.find("span", {"id": "amount"}).text
+
         else:
             card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find("h2").text.replace('$','').strip()+'.00'
 
