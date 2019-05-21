@@ -8,6 +8,7 @@ from datetime import datetime
 from imaplib import IMAP4, IMAP4_SSL
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from time import sleep
 import config
 import time
@@ -84,6 +85,28 @@ def parse_activationspot(egc_link):
 
     return gift_card
 
+def parse_costco(egc_link):
+    link_type = 'costco'
+    card_amount = re.search('\$(.\d+)', str(egc_link.find_all("p", style="font-size:20px;")[0].contents[0])).group(1)
+    card_number = egc_link.find_all("p", style="font-size:20px;")[0].find('a').contents[0]
+    if card_number[0] == 'X':
+        card_brand = 'iTunes'
+        card_pin = 'N/A'
+    else:
+        card_brand = ''
+        card_pin = ''
+        print("ERROR: Unsupported gift card type for Costco")
+
+    redeem_flag = 0
+
+    gift_card = {'type': link_type,
+                 'brand': card_brand,
+                 'amount': card_amount,
+                 'number': card_number,
+                 'pin': card_pin,
+                 'redeem_flag': redeem_flag}
+
+    return gift_card    
 
 def parse_gyft(egc_link):
 
@@ -137,7 +160,6 @@ def parse_kroger(egc_link):
         card_pin = "N/A"
 
     if card_brand == 'Best Buy':
-
         header = card_parsed.find("div", {"class": "headingText"}).find("h1").text
         match = re.search('\$(\d*)', header)
         if match:
@@ -222,6 +244,7 @@ def parse_ppdg(egc_link):
     # Captcha Testing
     card_type_exists = browser.find_elements_by_xpath(
         '//*[@id="app"]/div/div/div/div/section/div/div[3]/div[2]/div/h2[1]')
+    card_parsed = BeautifulSoup(browser.page_source, 'html.parser')
 
     if card_type_exists:
         pass
@@ -240,9 +263,14 @@ def parse_ppdg(egc_link):
     card_number = browser.find_element_by_xpath(config.PPDG_CARD_NUMBER).text
 
     # Get the card PIN
-    card_pin = browser.find_elements_by_xpath(config.PPDG_CARD_PIN)
+    try:
+        card_pin = browser.find_elements_by_xpath("//*[text()='PIN']/following-sibling::dd")
+    except NoSuchElementException:
+        card_pin = browser.find_elements_by_xpath(config.PPDG_CARD_PIN)
+
+
     if len(card_pin) > 0:
-        card_pin = browser.find_element_by_xpath(config.PPDG_CARD_PIN).text
+        card_pin = card_pin[0].text
     else:
         card_pin = "N/A"
 
@@ -415,13 +443,17 @@ for from_email in config.FROM_EMAILS:
                         if not msg.is_multipart():
                             msg_html = msg.get_payload(decode=True)
                         else:
-                            msg_html = msg.get_payload(1).get_payload(decode=True)
+                            try: 
+                                msg_html = msg.get_payload(1).get_payload(decode=True)
+                            except IndexError:
+                                msg_html = msg.get_payload(0).get_payload(decode=True)
 
                         # Parse the message
                         msg_parsed = BeautifulSoup(msg_html, 'html.parser')
 
                         # Determine Message type to parse accordingly
                         # PPDG
+
                         if (msg_parsed.find("a", text="View My Code") or
                             msg_parsed.find("a", text="Unwrap Your Gift")) is not None:
 
@@ -461,6 +493,18 @@ for from_email in config.FROM_EMAILS:
                                     gift_card = parse_newegg(egc_link)
                                     gift_cards.append(gift_card)
                                     time.sleep(3)
+
+                        # Costco
+                        elif (len(msg_parsed.find_all("div", style="cardStuff")) > 0):
+                            if config.DEBUG:
+                                print('Costco')
+                            egc_links = msg_parsed.find_all("p", id='primaryCode')
+
+                            gift_cards = []
+                            if egc_links is not None:
+                                for egc_link in egc_links:
+                                    gift_card = parse_costco(egc_link)
+                                    gift_cards.append(gift_card)
 
                         # Kroger
                         elif (len(msg_parsed.find_all("a", text=re.compile('.*Redeem your eGift'))) > 0) or \
