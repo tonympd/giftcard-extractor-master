@@ -30,6 +30,11 @@ SAVE_SCREENSHOTS = False
 # GCW: card_amount, card_number, card_pin
 CSV_OUTPUT_FORMAT = "TCB"
 
+# Flag to adjust how CSV files are created:
+# True - single CSV file will be created with all cards from all emails within the CSV file
+# False - CSV file will be created for EACH email address with all cards from that email address
+SINGLE_CSV_FILE = False
+
 # Flag to enable debug messages
 DEBUG = False
 

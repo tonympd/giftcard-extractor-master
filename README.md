@@ -48,8 +48,13 @@ Program specifically configured on Windows - includes ChromeDriver.exe - for gma
 	
 	    TCB: card_number, card_pin, card_amount
 	    GCW: card_amount, card_number, card_pin
+	    
+	h) Set SINGLE_CSV_FILE
 	
-	h) Note: When logging in for the first time, gmail may block access. You will need to follow the steps in the email to follow to enable less secure applications.
+	    True - single CSV file will be created with all cards from all emails within the CSV file
+	    False - CSV file will be created for EACH email address with all cards from that email address
+	
+	i) Note: When logging in for the first time, gmail may block access. You will need to follow the steps in the email to follow to enable less secure applications.
 	
 4) Double click on MasterExtractor.bat to run the program. You will get .jpg screenshots in the "screenshots" folder and will have a .csv file for each FROM email address.
  

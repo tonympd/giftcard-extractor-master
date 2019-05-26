@@ -417,6 +417,9 @@ else:
 mailbox.login(config.IMAP_USERNAME, config.IMAP_PASSWORD)
 mailbox.select(config.FOLDER)
 
+# Grab epoch timestamp for SINGLE_CSV_FILE
+epoch = str(time.time()).split('.')[0]
+
 for from_email in config.FROM_EMAILS:
 
     if config.DEBUG:
@@ -436,8 +439,12 @@ for from_email in config.FROM_EMAILS:
 
         else:
             # Open the CSV for writing
-            with open(from_email + '_cards_' + datetime.now().strftime('%m-%d-%Y_%H%M%S') + '.csv',
-                      'w', newline='') as csv_file:
+            if config.SINGLE_CSV_FILE:
+                csv_filename = 'cards_' + epoch + '.csv'
+            else:
+                csv_filename = from_email + '_cards_' + datetime.now().strftime('%m-%d-%Y_%H%M%S') + '.csv'
+
+            with open(csv_filename, 'a', newline='') as csv_file:
 
                 # Start the browser and the CSV writer
                 browser = webdriver.Chrome(config.CHROMEDRIVER_PATH)
@@ -582,8 +589,10 @@ for from_email in config.FROM_EMAILS:
 
                 # Close the browser
                 browser.close()
-                print("")
-                print("Thank you, come again!")
-                print("")
+
     else:
         print("FATAL ERROR: Unable to fetch list of messages from server.")
+
+print("")
+print("Thank you, come again!")
+print("")
