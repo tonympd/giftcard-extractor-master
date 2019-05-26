@@ -30,6 +30,10 @@ def parse_activationspot(egc_link):
         card_brand = card_parsed.find("input", id="retailerName")['value']
         gcm_format = True
 
+    # Staples
+    elif card_parsed.find("input", id="Hidden2") is not None:
+        card_brand = card_parsed.find("input", id="Hidden2")['value']
+
     # AppleBee
     elif card_parsed.find("div", {"class": "showCard"}) is not None:
         card_brand = card_parsed.find("div", {"class": "showCard"}).find("img")['alt'].replace("'s eGift Card", "")
@@ -71,6 +75,15 @@ def parse_activationspot(egc_link):
         card_number = card_parsed.find("span", id="cardNumber2").text
         card_pin = card_parsed.find("span", id="securityCode").text
         card_amount = card_parsed.find("div", id="amount").find("span").text.replace("$", "")
+
+    elif card_brand == 'Staples':
+
+        card_number = card_parsed.find("input", id="cardNumber")['value']
+        card_pin = card_parsed.find("input", id="Hidden5")['value']
+        header = card_parsed.find("span", id="egc-amount").text
+        match = re.search('\$(.*)', header)
+        if match:
+            card_amount = match.group(1).strip()
 
     else:
         print("Unknown card brand for {}".format(link_type))
