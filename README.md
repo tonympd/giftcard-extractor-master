@@ -11,17 +11,8 @@ This is a modified version of the ppdg-extractor to support the following:
  - Samsung Pay
  - Kroger
  - Newegg
-
-## Change Log (3/10/2019)
- - Modularized Parsing Code 
- - Added Kroger support (only tested with Best Buy and Kohl's)
- - Added Newegg support (only tested with Lowes, does not currently support screen shots)
- 
-## Change Log (1/22/2019)
- - Added SPay Support
- - Added ability to search for multiple FROM addresses 
- - Added Flag so screenshots can be turned off when not needed
- - Added output formatting for TCB and GCW formats
+ - Staples
+ - Costco (Itunes)
 
 ## Setup ##
 Extract (CSV) codes from and screenshot (JPG) PayPal Digital Gifts gift cards. Adapted from https://github.com/stevenmirabito/ code in order to clean up screenshots, save screenshots as .JPG, and to process PIN and non-PIN cards using the same program.
@@ -64,11 +55,15 @@ Program specifically configured on Windows - includes ChromeDriver.exe - for gma
  
     In order to access the cards, open the .csv file with your notepad program of choice. I prefer Notepad++ (https://notepad-plus-plus.org/download/v7.5.3.html).
 
-5) Useful Excel Formulas to turn CSV output into Cells.  Paste output into Cell A
+5) Sometimes chrome updates drivers automatically and you will need to download updated drivers here: https://chromedriver.storage.googleapis.com/index.html
+
+    Place driver in the same folder as this README.md file
+
+6) Useful Excel Formulas to turn CSV output into Cells.  Paste output into Cell A
 
         Cell A Example: 1234567891011,1234,50.00 
         Cell B: =LEFT(A1, SEARCH(",",A1,1)-1)        
         Cell C: =MID(A1,SEARCH(",",A1,1)+1,SEARCH(",",A1,SEARCH(",",A1,1)+1)-SEARCH(",",A1,1)-1)        
         Cell D: =RIGHT(A1,LEN(A1)-SEARCH(",",A1,SEARCH(",",A1,1)+1))
 
-6) Enjoy!
+7) Enjoy!
