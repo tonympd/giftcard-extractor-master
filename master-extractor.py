@@ -70,6 +70,17 @@ def parse_activationspot(egc_link):
         else:
             card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find("h2").text.replace('$','').strip()+'.00'
 
+
+    elif card_brand == 'Regal Cinemas e-GIFT Card':
+
+        header = card_parsed.find("span", {"id": "egc-amount"}).text
+        match = re.search('\$(\d*)', header)
+        if match:
+            card_amount = match.group(1).strip() + '.00'
+
+        card_number = card_parsed.find("span", id="cardNumber2").text.replace(" ", "")
+        card_pin = card_parsed.find("p", id="pin-num").find("span").text
+
     elif card_brand == 'Applebee':
 
         card_number = card_parsed.find("span", id="cardNumber2").text
