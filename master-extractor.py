@@ -287,7 +287,12 @@ def parse_ppdg(egc_link):
     card_amount = browser.find_element_by_xpath(config.PPDG_CARD_AMOUNT).text.replace('$', '').strip() + '.00'
 
     # Get the card number
-    card_number = browser.find_element_by_xpath(config.PPDG_CARD_NUMBER).text
+    try:
+        card_number = browser.find_elements_by_xpath("//*[text()='Code']/following-sibling::dd")
+        if len(card_number) > 0:
+            card_number = card_number[0].text
+    except NoSuchElementException:
+        card_number = browser.find_element_by_xpath(config.PPDG_CARD_NUMBER)
 
     # Get the card PIN
     try:
@@ -570,6 +575,15 @@ for from_email in config.FROM_EMAILS:
                                     gift_card = parse_kroger(egc_link)
                                     gift_cards.append(gift_card)
                                     time.sleep(3)
+
+
+                        # Amazon
+                        elif (msg_parsed.select_one("a[href*=amazon]") is not None):
+                            if config.DEBUG:
+                                print('Amazon')
+
+                            egc_link = msg_parsed.select_one("a[href*=amazon]")
+                            gift_card = parse_activationspot(egc_link)
 
                         else:
                             print(msg_parsed)
