@@ -1,10 +1,3 @@
-## Contributors
-- @Churn2burn 
-- @Tony 
-- @Michael (Kroger)
-- @h4xdaplanet (Spay)
-- @VoyagingDoc (Newegg)
-
 # giftcard-extractor
 This is a modified version of the ppdg-extractor to support the following:
  - Paypal Digital Gifts
@@ -14,6 +7,13 @@ This is a modified version of the ppdg-extractor to support the following:
  - Staples
  - Costco (Itunes)
  - Amazon
+
+## Contributors
+- @Churn2burn 
+- @Tony 
+- @Michael (Kroger)
+- @h4xdaplanet (Spay)
+- @VoyagingDoc (Newegg)
 
 ## Setup ##
 Extract (CSV) codes from and screenshot (JPG) PayPal Digital Gifts gift cards. Adapted from https://github.com/stevenmirabito/ code in order to clean up screenshots, save screenshots as .JPG, and to process PIN and non-PIN cards using the same program.
