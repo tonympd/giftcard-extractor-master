@@ -6,6 +6,7 @@ This is a modified version of the ppdg-extractor to support the following:
  - Newegg
  - Staples
  - Costco (Itunes)
+ - Gyft
  - Amazon
 
 ## Contributors
