@@ -112,10 +112,14 @@ def parse_activationspot(egc_link):
 
     return gift_card
 
+
 def parse_costco(egc_link):
+
     link_type = 'costco'
+
     card_amount = re.search('\$(.\d+)', str(egc_link.find_all("p", style="font-size:20px;")[0].contents[0])).group(1)
     card_number = egc_link.find_all("p", style="font-size:20px;")[0].find('a').contents[0]
+
     if card_number[0] == 'X':
         card_brand = 'iTunes'
         card_pin = 'N/A'
@@ -135,11 +139,12 @@ def parse_costco(egc_link):
 
     return gift_card    
 
+
 def parse_gyft(egc_link):
 
     link_type = 'gyft'
 
-    # Gyft does some weird stuff with java script, cant open new gift card in same browswer window
+    # Gyft does some weird stuff with javascript, cant open new gift card in same browser window
     browser2 = webdriver.Chrome(config.CHROMEDRIVER_PATH)
     browser2.get(egc_link['href'])
     time.sleep(2)
@@ -275,7 +280,6 @@ def parse_ppdg(egc_link):
     # Captcha Testing
     card_type_exists = browser.find_elements_by_xpath(
         '//*[@id="app"]/div/div/div/div/section/div/div[3]/div[2]/div/h2[1]')
-    card_parsed = BeautifulSoup(browser.page_source, 'html.parser')
 
     if card_type_exists:
         pass
@@ -298,7 +302,6 @@ def parse_ppdg(egc_link):
         card_pin = browser.find_elements_by_xpath("//*[text()='PIN']/following-sibling::dd")
     except NoSuchElementException:
         card_pin = browser.find_elements_by_xpath(config.PPDG_CARD_PIN)
-
 
     if len(card_pin) > 0:
         card_pin = card_pin[0].text
@@ -338,7 +341,6 @@ def parse_staples(egc_link):
         card_pin = card_parsed.find("input", id="pinNumber")['value']
     else:
         card_pin = "N/A"
-
 
     card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find("h2").text.replace('$', '').strip()+'.00'
 
@@ -491,7 +493,6 @@ for from_email in config.FROM_EMAILS:
 
                         # Determine Message type to parse accordingly
                         # PPDG
-
                         if (msg_parsed.find("a", text="View My Code") or
                             msg_parsed.find("a", text="Unwrap Your Gift")) is not None:
 
@@ -536,6 +537,7 @@ for from_email in config.FROM_EMAILS:
                         elif (len(msg_parsed.find_all("div", style="cardStuff")) > 0):
                             if config.DEBUG:
                                 print('Costco')
+
                             egc_links = msg_parsed.find_all("p", id='primaryCode')
 
                             gift_cards = []
@@ -554,6 +556,7 @@ for from_email in config.FROM_EMAILS:
 
                             if len(egc_links) == 0:
                                 egc_links = msg_parsed.find_all("a", text="Click to Access eGift")
+
                             gift_cards = []
                             if egc_links is not None:
                                 for egc_link in egc_links:
@@ -562,7 +565,7 @@ for from_email in config.FROM_EMAILS:
                                     time.sleep(3)
 
                         # Staples
-                        elif (len(msg_parsed.find_all("a", text=re.compile('.*View Gift'))) > 0):
+                        elif len(msg_parsed.find_all("a", text=re.compile('.*View Gift')) > 0):
                             if config.DEBUG:
                                 print('Staples')
 
@@ -574,6 +577,14 @@ for from_email in config.FROM_EMAILS:
                                     gift_card = parse_kroger(egc_link)
                                     gift_cards.append(gift_card)
                                     time.sleep(3)
+
+                        # Amazon
+                        elif msg_parsed.select_one("a[href*=amazon]") is not None:
+                            if config.DEBUG:
+                                print('Amazon')
+
+                            egc_link = msg_parsed.select_one("a[href*=amazon]")
+                            gift_card = parse_activationspot(egc_link)
 
                         else:
                             print(msg_parsed)
