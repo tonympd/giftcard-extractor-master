@@ -112,6 +112,47 @@ def parse_activationspot(egc_link):
 
     return gift_card
 
+def parse_egifter(egc_link):
+    link_type = 'egifter'
+    browser.delete_all_cookies()
+    browser.get(egc_link['href'])
+
+    time.sleep(5)
+    count = 0
+    while len(browser.find_elements_by_name("Order.PurchaserEmail")) == 0 and count < 100:    
+        print("Solve Captcha")
+        time.sleep(10)
+        count += 1
+    if len(browser.find_elements_by_name("Order.PurchaserEmail")) > 0:
+        form = browser.find_element_by_name("Order.PurchaserEmail")
+        form.clear()
+        form.send_keys(config.EMAIL)
+        continue_btn = browser.find_element_by_xpath("//button[@type='submit']")
+        continue_btn.click()
+        time.sleep(12)
+    else:
+        print('Failed')
+    redeem_flag = 0
+
+    if len(browser.find_elements_by_xpath('//*[@id="vue-entry"]/div/div[3]/div/div/div/div[2]/div/div/div[2]/div/div/div[1]/div/div[1]/div/div/div/div/div[2]/div/div/div/div[1]/div/div/b')) >0:
+        card_amount = browser.find_elements_by_xpath('//*[@id="vue-entry"]/div/div[3]/div/div/div/div[2]/div/div/div[2]/div/div/div[1]/div/div[1]/div/div/div/div/div[2]/div/div/div/div[1]/div/div/b')[0].text
+        card_number = browser.find_elements_by_xpath('//*[@id="vue-entry"]/div/div[3]/div/div/div/div[2]/div/div/div[2]/div/div/div[1]/div/div[1]/div/div/div/div/div[2]/div/div/div/div[3]/div/div/div[1]/span')[0].text
+        card_pin = browser.find_elements_by_xpath('//*[@id="vue-entry"]/div/div[3]/div/div/div/div[2]/div/div/div[2]/div/div/div[1]/div/div[1]/div/div/div/div/div[2]/div/div/div/div[3]/div/div/div[2]/span')[0].text
+        card_brand = ''
+    else:
+        card_brand = ''
+        card_pin = ''
+        card_amount = ''
+        print('ERROR: Unsupported')
+    gift_card = {'type': link_type,
+             'brand': card_brand,
+             'amount': card_amount,
+             'number': card_number,
+             'pin': card_pin,
+             'redeem_flag': redeem_flag}
+
+    return gift_card    
+
 def parse_costco(egc_link):
     link_type = 'costco'
     card_amount = re.search('\$(.\d+)', str(egc_link.find_all("p", style="font-size:20px;")[0].contents[0])).group(1)
@@ -145,6 +186,7 @@ def parse_gyft(egc_link):
     if len(browser.find_elements_by_xpath('/html/body/main/aside/div[5]/div/div[2]/div[2]')) > 0:
         card_brand = browser.find_elements_by_xpath('/html/body/main/aside/table/tbody/tr/td[2]/h6[2]')[0].text
         card_amount = browser.find_elements_by_xpath('/html/body/main/aside/table/tbody/tr/td[2]/h6[1]')[0].text.replace('$','')
+        card_amount = card_amount.replace('$', '').strip()
         card_number = browser.find_elements_by_xpath('/html/body/main/aside/div[5]/div/div[2]/div[2]')[0].text
         card_pin = browser.find_elements_by_xpath('/html/body/main/aside/div[5]/div/div[4]/div[2]')[0].text
 
@@ -463,7 +505,9 @@ for from_email in config.FROM_EMAILS:
             with open(csv_filename, 'a', newline='') as csv_file:
 
                 # Start the browser and the CSV writer
-                browser = webdriver.Chrome(config.CHROMEDRIVER_PATH)
+                options = webdriver.ChromeOptions()
+                options.add_argument("javascript.enabled = True")
+                browser = webdriver.Chrome(config.CHROMEDRIVER_PATH, options=options)
                 csv_writer = csv.writer(csv_file)
 
                 # For each matching email...
@@ -490,6 +534,7 @@ for from_email in config.FROM_EMAILS:
                         # Parse the message
                         msg_parsed = BeautifulSoup(msg_html, 'html.parser')
 
+
                         # Determine Message type to parse accordingly
                         # PPDG
 
@@ -510,6 +555,13 @@ for from_email in config.FROM_EMAILS:
 
                             egc_link = msg_parsed.select_one("a[href*=activationspot]")
                             gift_card = parse_activationspot(egc_link)
+
+                        # Egifter
+                        elif len(msg_parsed.find_all("a", text="CLAIM")) > 0:
+                            if config.DEBUG:
+                                print("egifter")
+                            egc_link = msg_parsed.find_all("a", text="CLAIM")[0]
+                            gift_card = parse_egifter(egc_link)
 
                         # Gyft
                         elif msg_parsed.select_one("a[href*=gyft]") is not None:
@@ -610,7 +662,7 @@ for from_email in config.FROM_EMAILS:
                     else:
                         print("ERROR: Unable to fetch message {}, skipping.".format(msg_id.decode('UTF-8')))
 
-                    time.sleep(8)
+                    time.sleep(20)
 
                 # Close the browser
                 browser.close()

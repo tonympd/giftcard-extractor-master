@@ -20,7 +20,7 @@ IMAP_PASSWORD = 'xxxxxxxxxxxxxx'
 FOLDER = 'xxxxxxxxxxx'
 
 # List email addresses we should look for within FOLDER defined above
-FROM_EMAILS = ['Costco.com@memberedelivery.com', 'gifts@paypal.com', 'no-reply@samsungpay.com', 'info@newegg.com', 'customerservice@giftcardmall.com', 'DoNotReply.Staples@blackhawk-net.com']
+FROM_EMAILS = ['em@email.egifter.com', 'Costco.com@memberedelivery.com', 'gifts@paypal.com', 'no-reply@samsungpay.com', 'info@newegg.com', 'customerservice@giftcardmall.com', 'DoNotReply.Staples@blackhawk-net.com']
 
 # Flag to save screenshots in screenshot folder if available (not all cards support this)
 SAVE_SCREENSHOTS = False
