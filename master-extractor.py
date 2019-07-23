@@ -507,6 +507,7 @@ for from_email in config.FROM_EMAILS:
                 # Start the browser and the CSV writer
                 options = webdriver.ChromeOptions()
                 options.add_argument("javascript.enabled = True")
+                options.add_argument("--window-size=920,480")
                 browser = webdriver.Chrome(config.CHROMEDRIVER_PATH, options=options)
                 csv_writer = csv.writer(csv_file)
 
@@ -532,8 +533,11 @@ for from_email in config.FROM_EMAILS:
                                 msg_html = msg.get_payload(0).get_payload(decode=True)
 
                         # Parse the message
-                        msg_parsed = BeautifulSoup(msg_html, 'html.parser')
-
+                        try:
+                            msg_parsed = BeautifulSoup(msg_html, 'html.parser')
+                        except TypeError: # Kluge to fix issue with encoding on Staples
+                            msg_html = str(msg.get_payload(0).get_payload()[0])
+                            msg_parsed = BeautifulSoup(msg_html, 'html.parser')
 
                         # Determine Message type to parse accordingly
                         # PPDG
@@ -662,7 +666,7 @@ for from_email in config.FROM_EMAILS:
                     else:
                         print("ERROR: Unable to fetch message {}, skipping.".format(msg_id.decode('UTF-8')))
 
-                    time.sleep(20)
+                    time.sleep(1)
 
                 # Close the browser
                 browser.close()
