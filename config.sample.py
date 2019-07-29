@@ -15,12 +15,13 @@ IMAP_PORT = 993
 IMAP_SSL = True
 
 # Change these to your gmail username and password and the Folder or Label your gift cards are in
-IMAP_USERNAME = 'xxxxxxxxxxxxxxxxx'
-IMAP_PASSWORD = 'xxxxxxxxxxxxxx'
-FOLDER = 'xxxxxxxxxxx'
+IMAP_USERNAME = 'xxxxxxxxxxxxxxxxxx'
+IMAP_PASSWORD = 'xxxxxxxxxxxxxxxxxx'
+FOLDER = 'xxxxxxxxxxxxxxxxxxxxxxxxx'
 
 # List email addresses we should look for within FOLDER defined above
-FROM_EMAILS = ['Costco.com@memberedelivery.com', 'gifts@paypal.com', 'no-reply@samsungpay.com', 'info@newegg.com', 'customerservice@giftcardmall.com', 'DoNotReply.Staples@blackhawk-net.com']
+FROM_EMAILS = ['Costco.com@memberedelivery.com', 'gifts@paypal.com', 'no-reply@samsungpay.com', 'info@newegg.com',
+               'customerservice@giftcardmall.com', 'DoNotReply.Staples@blackhawk-net.com']
 
 # Flag to save screenshots in screenshot folder if available (not all cards support this)
 SAVE_SCREENSHOTS = False
