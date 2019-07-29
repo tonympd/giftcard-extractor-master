@@ -35,6 +35,10 @@ def parse_activationspot(egc_link):
         card_brand = card_parsed.find("input", id="Hidden2")['value']
 
     # AppleBee
+    elif card_parsed.find("h1", {"class": "ribbon"}) is not None:
+        card_brand = card_parsed.find("h1", {"class": "ribbon"}).text.replace(" eGift Card", "").replace("Your ","")
+
+    # Childrens Place
     elif card_parsed.find("div", {"class": "showCard"}) is not None:
         card_brand = card_parsed.find("div", {"class": "showCard"}).find("img")['alt'].replace("'s eGift Card", "")
 
@@ -96,6 +100,11 @@ def parse_activationspot(egc_link):
         if match:
             card_amount = match.group(1).strip()
 
+    elif card_brand == 'The Children\'s Place':
+        card_number = card_parsed.find("span", id="cardNumber2").text.replace(" ", "").strip()
+        card_pin = card_parsed.find("div", {"class": "cardNum"}).find_all("span")[1].text
+        card_amount = card_parsed.find("div", {"id": "amount"}).text.replace('$','').strip()+'.00'
+
     else:
         print("Unknown card brand for {}".format(link_type))
 
@@ -111,6 +120,7 @@ def parse_activationspot(egc_link):
                  'redeem_flag': redeem_flag}
 
     return gift_card
+
 
 def parse_costco(egc_link):
     link_type = 'costco'
@@ -134,6 +144,7 @@ def parse_costco(egc_link):
                  'redeem_flag': redeem_flag}
 
     return gift_card    
+
 
 def parse_gyft(egc_link):
 
@@ -323,37 +334,37 @@ def parse_ppdg(egc_link):
     return gift_card
 
 
-def parse_staples(egc_link):
-
-    link_type = 'staples'
-
-    # Open the link in the browser
-    browser.get(egc_link['href'])
-    card_parsed = BeautifulSoup(browser.page_source, 'html.parser')
-
-    card_brand = card_parsed.find("input", id="retailerName")['value'].replace('®', '')
-    card_number = card_parsed.find("input", id="cardNumber")['value']
-
-    if card_parsed.find("input", id="pinNumber") is not None:
-        card_pin = card_parsed.find("input", id="pinNumber")['value']
-    else:
-        card_pin = "N/A"
-
-
-    card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find("h2").text.replace('$', '').strip()+'.00'
-
-    # set redeem_flag to zero to stay compatible with ppdg (effects screen capture)
-    redeem_flag = 0
-
-    # Create Gift Card Dictionary
-    gift_card = {'type': link_type,
-                 'brand': card_brand,
-                 'amount': card_amount,
-                 'number': card_number,
-                 'pin': card_pin,
-                 'redeem_flag': redeem_flag}
-
-    return gift_card
+# def parse_staples(egc_link):
+#
+#     link_type = 'staples'
+#
+#     # Open the link in the browser
+#     browser.get(egc_link['href'])
+#     card_parsed = BeautifulSoup(browser.page_source, 'html.parser')
+#
+#     card_brand = card_parsed.find("input", id="retailerName")['value'].replace('®', '')
+#     card_number = card_parsed.find("input", id="cardNumber")['value']
+#
+#     if card_parsed.find("input", id="pinNumber") is not None:
+#         card_pin = card_parsed.find("input", id="pinNumber")['value']
+#     else:
+#         card_pin = "N/A"
+#
+#
+#     card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find("h2").text.replace('$', '').strip()+'.00'
+#
+#     # set redeem_flag to zero to stay compatible with ppdg (effects screen capture)
+#     redeem_flag = 0
+#
+#     # Create Gift Card Dictionary
+#     gift_card = {'type': link_type,
+#                  'brand': card_brand,
+#                  'amount': card_amount,
+#                  'number': card_number,
+#                  'pin': card_pin,
+#                  'redeem_flag': redeem_flag}
+#
+#     return gift_card
 
 
 def take_screenshot(gift_card):
@@ -481,13 +492,17 @@ for from_email in config.FROM_EMAILS:
                         if not msg.is_multipart():
                             msg_html = msg.get_payload(decode=True)
                         else:
-                            try: 
+                            try:
                                 msg_html = msg.get_payload(1).get_payload(decode=True)
                             except IndexError:
                                 msg_html = msg.get_payload(0).get_payload(decode=True)
 
                         # Parse the message
-                        msg_parsed = BeautifulSoup(msg_html, 'html.parser')
+                        try:
+                            msg_parsed = BeautifulSoup(msg_html, 'html.parser')
+                        except TypeError: # Kluge to fix issue with encoding on Staples
+                            msg_html = str(msg.get_payload(0).get_payload()[0])
+                            msg_parsed = BeautifulSoup(msg_html, 'html.parser')
 
                         # Determine Message type to parse accordingly
                         # PPDG
@@ -562,11 +577,11 @@ for from_email in config.FROM_EMAILS:
                                     time.sleep(3)
 
                         # Staples
-                        elif (len(msg_parsed.find_all("a", text=re.compile('.*View Gift'))) > 0):
+                        elif (len(msg_parsed.find_all("a", text=re.compile('View Gift'))) > 0):
                             if config.DEBUG:
                                 print('Staples')
 
-                            egc_links = msg_parsed.find_all("a", text=re.compile('.*View Gift'))
+                            egc_links = msg_parsed.find_all("a", text=re.compile('View Gift'))
 
                             gift_cards = []
                             if egc_links is not None:
@@ -578,6 +593,7 @@ for from_email in config.FROM_EMAILS:
                         else:
                             print(msg_parsed)
                             print("ERROR: Couldn't determine gift card type")
+                            exit()
 
                         # Write Card to CSV
                         try:
