@@ -153,6 +153,74 @@ def parse_egifter(egc_link):
 
     return gift_card    
 
+def parse_swagbucks(egc_link):
+    link_type = 'swagbucks'
+    browser.delete_all_cookies()
+    browser.get(egc_link['href'])
+
+    time.sleep(5)
+
+    if len(browser.find_elements_by_xpath("//*[@id='emailInput']")) > 0:
+        logged_in = len(browser.find_elements_by_xpath("//*[@class='loggedIn']")) > 0
+        if not logged_in:
+            login_email = browser.find_element_by_xpath("//*[@id='emailInput']")
+            login_email.clear()
+            login_email.send_keys(config.SWAGBUCKS_EMAIL)
+
+            login_password = browser.find_element_by_xpath("//*[@id='pswd']")
+            login_password.clear()
+            login_password.send_keys(config.SWAGBUCKS_PASSWORD)
+
+            continue_btn = browser.find_element_by_xpath("//button[@id='verifyBtn']")
+            continue_btn.click()
+            time.sleep(6)
+        else:
+            login_password = browser.find_element_by_xpath("//*[@id='pswd']")
+            login_password.clear()
+            login_password.send_keys(config.SWAGBUCKS_PASSWORD)
+
+            continue_btn = browser.find_element_by_xpath("//button[@id='verifyBtn']")
+            continue_btn.click()
+            time.sleep(6)
+
+    redeem_flag = 0
+    if len(browser.find_elements_by_xpath("//*[text()='View iTunes Code']")) > 0:
+        continue_btn = browser.find_element_by_xpath("//*[text()='View iTunes Code']")
+        continue_btn.click()
+        time.sleep(10)
+    else:
+        print('Failed at view code')
+    
+    browser.switch_to_window(browser.window_handles[-1])
+
+    if len(browser.find_elements_by_xpath('//*[@id="ids-configuration"]')) >0:
+        data_certificate = browser.find_element_by_xpath('//*[@id="ids-configuration"]').get_attribute('data-certificate')
+        data_configuration = browser.find_element_by_xpath('//*[@id="ids-configuration"]').get_attribute('data-configuration')
+
+        card_data = json.loads(data_certificate)
+        card_config = json.loads(data_configuration)
+
+        card_amount = card_data['CurrentBalance']
+        card_number = card_data['CardNumber']
+        if card_number[0] == 'X':
+            card_pin = ''
+        else:
+            card_pin = 'Pin'
+        card_brand = card_config[0]['settings']['brandName']
+    else:
+        card_brand = ''
+        card_pin = ''
+        card_amount = ''
+        print('ERROR: Unsupported')
+    gift_card = {'type': link_type,
+             'brand': card_brand,
+             'amount': card_amount,
+             'number': card_number,
+             'pin': card_pin,
+             'redeem_flag': redeem_flag}
+
+    return gift_card    
+
 def parse_costco(egc_link):
     link_type = 'costco'
     card_amount = re.search('\$(.\d+)', str(egc_link.find_all("p", style="font-size:20px;")[0].contents[0])).group(1)
@@ -567,6 +635,13 @@ for from_email in config.FROM_EMAILS:
                             egc_link = msg_parsed.find_all("a", text="CLAIM")[0]
                             gift_card = parse_egifter(egc_link)
 
+                        # Swagbucks
+                        elif len(msg_parsed.find_all("a", text="View My Gift Card Code")) > 0:
+                            if config.DEBUG:
+                                print("Swagbucks")
+                            egc_link = msg_parsed.find_all("a", text="View My Gift Card Code")[0]
+                            gift_card = parse_swagbucks(egc_link)
+
                         # Gyft
                         elif msg_parsed.select_one("a[href*=gyft]") is not None:
                             if config.DEBUG:
@@ -666,7 +741,7 @@ for from_email in config.FROM_EMAILS:
                     else:
                         print("ERROR: Unable to fetch message {}, skipping.".format(msg_id.decode('UTF-8')))
 
-                    time.sleep(1)
+                    time.sleep(5)
 
                 # Close the browser
                 browser.close()

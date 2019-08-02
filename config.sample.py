@@ -14,13 +14,16 @@ IMAP_HOST = 'imap.gmail.com'
 IMAP_PORT = 993
 IMAP_SSL = True
 
+SWAGBUCKS_PASSWORD = "xxxxxxxx"
+SWAGBUCKS_EMAIL = "xxxxxxxxx"
+
 # Change these to your gmail username and password and the Folder or Label your gift cards are in
 IMAP_USERNAME = 'xxxxxxxxxxxxxxxxx'
 IMAP_PASSWORD = 'xxxxxxxxxxxxxx'
 FOLDER = 'xxxxxxxxxxx'
 
 # List email addresses we should look for within FOLDER defined above
-FROM_EMAILS = ['em@email.egifter.com', 'Costco.com@memberedelivery.com', 'gifts@paypal.com', 'no-reply@samsungpay.com', 'info@newegg.com', 'customerservice@giftcardmall.com', 'DoNotReply.Staples@blackhawk-net.com']
+FROM_EMAILS = ['info@swagbucks.com', 'em@email.egifter.com', 'Costco.com@memberedelivery.com', 'gifts@paypal.com', 'no-reply@samsungpay.com', 'info@newegg.com', 'customerservice@giftcardmall.com', 'DoNotReply.Staples@blackhawk-net.com']
 
 # Flag to save screenshots in screenshot folder if available (not all cards support this)
 SAVE_SCREENSHOTS = False
