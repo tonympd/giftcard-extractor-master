@@ -30,6 +30,10 @@ def parse_activationspot(egc_link):
         card_brand = card_parsed.find("input", id="retailerName")['value']
         gcm_format = True
 
+    # Uber
+    elif card_parsed.find("strong", {"class": "ribbon-content"}) is not None:
+        card_brand = card_parsed.find("strong", {"class": "ribbon-content"}).text.replace(" eGift card", "").replace("Your ", "")
+
     # Staples
     elif card_parsed.find("input", id="Hidden2") is not None:
         card_brand = card_parsed.find("input", id="Hidden2")['value']
@@ -89,7 +93,14 @@ def parse_activationspot(egc_link):
 
         card_number = card_parsed.find("span", id="cardNumber2").text
         card_pin = card_parsed.find("span", id="securityCode").text
-        card_amount = card_parsed.find("div", id="amount").find("span").text.replace("$", "")
+        card_amount = card_parsed.find("div", id="amount").text.replace("$", "")
+
+    elif card_brand == 'Uber':
+
+        card_number = card_parsed.find("div", {"class": "cardNum"}).find("span").text.strip()
+        card_pin = "N/A"
+        card_amount = card_parsed.find("div", id="amount").text.strip().replace("$", "")
+
 
     elif card_brand == 'Staples':
 
