@@ -78,7 +78,6 @@ def parse_activationspot(egc_link):
         else:
             card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find("h2").text.replace('$','').strip()+'.00'
 
-
     elif card_brand == 'Regal Cinemas e-GIFT Card':
 
         header = card_parsed.find("span", {"id": "egc-amount"}).text
@@ -101,7 +100,6 @@ def parse_activationspot(egc_link):
         card_pin = "N/A"
         card_amount = card_parsed.find("div", id="amount").text.strip().replace("$", "")
 
-
     elif card_brand == 'Staples':
 
         card_number = card_parsed.find("input", id="cardNumber")['value']
@@ -111,7 +109,7 @@ def parse_activationspot(egc_link):
         if match:
             card_amount = match.group(1).strip()
 
-    elif card_brand == 'The Children\'s Place':
+    elif card_brand == 'The Children\'s Place' or card_brand == 'StubHub':
         card_number = card_parsed.find("span", id="cardNumber2").text.replace(" ", "").strip()
         card_pin = card_parsed.find("div", {"class": "cardNum"}).find_all("span")[1].text
         card_amount = card_parsed.find("div", {"id": "amount"}).text.replace('$','').strip()+'.00'
