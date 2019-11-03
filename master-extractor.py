@@ -9,6 +9,7 @@ from imaplib import IMAP4, IMAP4_SSL
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import TimeoutException
 from time import sleep
 import config
 import time
@@ -21,6 +22,7 @@ def parse_activationspot(egc_link):
 
     # Open the link in the browser
     browser.get(egc_link['href'])
+
     card_parsed = BeautifulSoup(browser.page_source, 'html.parser')
 
     gcm_format = False
@@ -30,9 +32,15 @@ def parse_activationspot(egc_link):
         card_brand = card_parsed.find("input", id="retailerName")['value']
         gcm_format = True
 
-    # Uber
+    # Uber, Xbox
     elif card_parsed.find("strong", {"class": "ribbon-content"}) is not None:
-        card_brand = card_parsed.find("strong", {"class": "ribbon-content"}).text.replace(" eGift card", "").replace("Your ", "")
+        card_brand = card_parsed.find("strong", {"class": "ribbon-content"})
+
+        if "Uber" in card_brand.text:
+            card_brand = "Uber"
+
+        elif "Xbox" in card_brand.text:
+            card_brand = "Xbox"
 
     # Staples
     elif card_parsed.find("input", id="Hidden2") is not None:
@@ -40,11 +48,17 @@ def parse_activationspot(egc_link):
 
     # AppleBee
     elif card_parsed.find("h1", {"class": "ribbon"}) is not None:
+        print("HELLO")
+        exit()
         card_brand = card_parsed.find("h1", {"class": "ribbon"}).text.replace(" eGift Card", "").replace("Your ","")
 
     # Childrens Place
     elif card_parsed.find("div", {"class": "showCard"}) is not None:
         card_brand = card_parsed.find("div", {"class": "showCard"}).find("img")['alt'].replace("'s eGift Card", "")
+
+    # xbox
+    elif card_parsed.find("div", {"class": "showCard"}) is not None:
+        card_brand = card_parsed.find("h1", {"class": "ribbon"}).text.replace("Your ","")
 
     else:
         print("Unknown card brand for {}".format(link_type))
@@ -97,6 +111,12 @@ def parse_activationspot(egc_link):
     elif card_brand == 'Uber':
 
         card_number = card_parsed.find("div", {"class": "cardNum"}).find("span").text.strip()
+        card_pin = "N/A"
+        card_amount = card_parsed.find("div", id="amount").text.strip().replace("$", "")
+
+    elif card_brand == 'Xbox':
+
+        card_number = card_parsed.find("span", id="cardNumber2").text.replace(" ", "").strip()
         card_pin = "N/A"
         card_amount = card_parsed.find("div", id="amount").text.strip().replace("$", "")
 
@@ -486,6 +506,7 @@ for from_email in config.FROM_EMAILS:
 
                 # Start the browser and the CSV writer
                 browser = webdriver.Chrome(config.CHROMEDRIVER_PATH)
+                browser.set_page_load_timeout(10)
                 csv_writer = csv.writer(csv_file)
 
                 # For each matching email...
@@ -527,6 +548,7 @@ for from_email in config.FROM_EMAILS:
                             egc_link = msg_parsed.find("a", text="View My Code") or \
                                        msg_parsed.find("a", text="Unwrap Your Gift")
                             gift_card = parse_ppdg(egc_link)
+                            time.sleep(60)
 
                         # Samsung Pay
                         elif msg_parsed.select_one("a[href*=activationspot]") is not None:
@@ -638,7 +660,7 @@ for from_email in config.FROM_EMAILS:
                     else:
                         print("ERROR: Unable to fetch message {}, skipping.".format(msg_id.decode('UTF-8')))
 
-                    time.sleep(8)
+                    time.sleep(10)
 
                 # Close the browser
                 browser.close()
