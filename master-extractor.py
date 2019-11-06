@@ -537,6 +537,7 @@ for from_email in config.FROM_EMAILS:
                             msg_html = str(msg.get_payload(0).get_payload()[0])
                             msg_parsed = BeautifulSoup(msg_html, 'html.parser')
 
+
                         # Determine Message type to parse accordingly
                         # PPDG
                         if (msg_parsed.find("a", text="View My Code") or
@@ -595,7 +596,8 @@ for from_email in config.FROM_EMAILS:
 
                         # Kroger
                         elif (len(msg_parsed.find_all("a", text=re.compile('.*Redeem your eGift'))) > 0) or \
-                             (len(msg_parsed.find_all("a", text="Click to Access eGift")) > 0):
+                             (len(msg_parsed.find_all("a", text="Click to Access eGift")) > 0) or \
+                             (len(msg_parsed.find_all("a", text=re.compile('.*Click to View'))) > 0):
                             if config.DEBUG:
                                 print('Kroger')
 
@@ -603,6 +605,8 @@ for from_email in config.FROM_EMAILS:
 
                             if len(egc_links) == 0:
                                 egc_links = msg_parsed.find_all("a", text="Click to Access eGift")
+                            if len(egc_links) == 0:
+                                egc_links = msg_parsed.find_all("a", text=re.compile('.*Click to View'))
 
                             gift_cards = []
                             if egc_links is not None:
