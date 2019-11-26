@@ -42,6 +42,9 @@ def parse_activationspot(egc_link):
         elif "Xbox" in card_brand.text:
             card_brand = "Xbox"
 
+        elif "Chipotle" in card_brand.text:
+            card_brand = "Chipotle"
+
     # Staples
     elif card_parsed.find("input", id="Hidden2") is not None:
         card_brand = card_parsed.find("input", id="Hidden2")['value']
@@ -107,6 +110,12 @@ def parse_activationspot(egc_link):
         card_number = card_parsed.find("span", id="cardNumber2").text
         card_pin = card_parsed.find("span", id="securityCode").text
         card_amount = card_parsed.find("div", id="amount").text.replace("$", "")
+
+    elif card_brand == 'Chipotle':
+
+        card_number = card_parsed.find("span", id="cardNumber2").text.strip().replace(" ", "")
+        card_pin = card_parsed.find("div", {"class": "cardNum"}).find_all("span")[1].text.strip()
+        card_amount = card_parsed.find("div", id="amount").text.strip().replace("$", "")
 
     elif card_brand == 'Uber':
 
