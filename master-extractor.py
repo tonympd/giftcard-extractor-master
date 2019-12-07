@@ -47,7 +47,7 @@ def parse_activationspot(egc_link):
 
     # Staples
     elif card_parsed.find("input", id="Hidden2") is not None:
-        card_brand = card_parsed.find("input", id="Hidden2")['value']
+        card_brand = card_parsed.find("input", id="Hidden2")['value'].replace("®","")
 
     # AppleBee
     elif card_parsed.find("h1", {"class": "ribbon"}) is not None:
