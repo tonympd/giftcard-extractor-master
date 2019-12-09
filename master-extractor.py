@@ -47,12 +47,10 @@ def parse_activationspot(egc_link):
 
     # Staples
     elif card_parsed.find("input", id="Hidden2") is not None:
-        card_brand = card_parsed.find("input", id="Hidden2")['value']
+        card_brand = card_parsed.find("input", id="Hidden2")['value'].replace("®","")
 
     # AppleBee
     elif card_parsed.find("h1", {"class": "ribbon"}) is not None:
-        print("HELLO")
-        exit()
         card_brand = card_parsed.find("h1", {"class": "ribbon"}).text.replace(" eGift Card", "").replace("Your ","")
 
     # Childrens Place
@@ -250,6 +248,8 @@ def parse_kroger(egc_link):
     elif card_brand == 'iTunes':
         description = card_parsed.find("div", {"class": "cardNum"}).find("p", {"class": "large"}).text
         card_amount = re.search('\$(\d*)', description).group(1).strip() + '.00'
+    elif card_brand == "Cabela's":
+        card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find(id="amount").text.replace('$','').strip() + '.00'
     else:
         card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find("h2").text.replace('$', '').strip()+'.00'
 
