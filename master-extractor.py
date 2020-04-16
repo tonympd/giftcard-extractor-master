@@ -238,17 +238,20 @@ def parse_kroger(egc_link):
     browser.get(egc_link['href'])
     card_parsed = BeautifulSoup(browser.page_source, 'html.parser')
 
-    if card_parsed.find("div", {"class": "cardInfo"}).find("h1") is not None:
+    if 'Staples' in card_parsed.find("title").text:
+        card_brand = 'Staples'
+        card_number = card_parsed.find("span", id="cardNumber2").text.replace(" ","")
+
+    elif card_parsed.find("div", {"class": "cardInfo"}).find("h1") is not None:
         card_brand = card_parsed.find("div", {"class": "cardInfo"}).find("h1").text
         card_number = card_parsed.find("span", id="cardNumber2").text.replace(" ","")
 
     # Uber
     elif card_parsed.find("div", id="main").find("strong", {"class": "ribbon-content"}) is not None:
         card_brand = card_parsed.find("div", id="main").find("strong", {"class": "ribbon-content"}).text.replace("Your ","").replace(" eGift card","")
-        card_number = card_parsed.find("div", {"class": "cardNum"}).find("span").text
+        card_number = card_parsed.find("div", {"class": "cardNum"}).find("span").text.replace(" ","")
 
     else:
-
         try:
             card_brand = card_parsed.find("input", id="retailerName")['value'].replace('®', '')
             card_number = card_parsed.find("input", id="cardNumber")['value']
@@ -261,6 +264,8 @@ def parse_kroger(egc_link):
         card_pin = card_parsed.find("input", id="pinNumber")['value']
     elif card_brand == 'Enjoy Your Happy You Swap Gift Card!':
         card_pin = card_parsed.find("div", id="pinContainer").text.replace("PIN:", "").strip()
+    elif card_brand == 'Staples':
+        card_pin = card_parsed.find("span", id="secCode").text.strip()
     else:
         card_pin = "N/A"
 
@@ -278,6 +283,8 @@ def parse_kroger(egc_link):
         card_amount = card_parsed.find("div", id="value").text.replace("$", "").strip() + '.00'
     elif card_brand == 'Uber':
         card_amount = card_parsed.find("div", id="amount").text.replace("$", "").strip() + '.00'
+    elif card_brand == 'Staples':
+        card_amount = card_parsed.find("span", id="egc-amount").text.replace("$", "").strip() + '.00'
     else:
         card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find("h2").text.replace('$', '').strip()+'.00'
 
