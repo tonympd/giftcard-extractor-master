@@ -242,14 +242,14 @@ def parse_kroger(egc_link):
         card_brand = 'Staples'
         card_number = card_parsed.find("span", id="cardNumber2").text.replace(" ","")
 
-    elif card_parsed.find("div", {"class": "cardInfo"}).find("h1") is not None:
-        card_brand = card_parsed.find("div", {"class": "cardInfo"}).find("h1").text
-        card_number = card_parsed.find("span", id="cardNumber2").text.replace(" ","")
-
     # Uber
     elif card_parsed.find("div", id="main").find("strong", {"class": "ribbon-content"}) is not None:
         card_brand = card_parsed.find("div", id="main").find("strong", {"class": "ribbon-content"}).text.replace("Your ","").replace(" eGift card","")
         card_number = card_parsed.find("div", {"class": "cardNum"}).find("span").text.replace(" ","")
+
+    elif card_parsed.find("div", {"class": "cardInfo"}) is not None:
+        card_brand = card_parsed.find("div", {"class": "cardInfo"}).find("h1").text
+        card_number = card_parsed.find("span", id="cardNumber2").text.replace(" ","")
 
     else:
         try:
@@ -285,6 +285,8 @@ def parse_kroger(egc_link):
         card_amount = card_parsed.find("div", id="amount").text.replace("$", "").strip() + '.00'
     elif card_brand == 'Staples':
         card_amount = card_parsed.find("span", id="egc-amount").text.replace("$", "").strip() + '.00'
+    elif card_brand == 'Kohl\'s':
+        card_amount = card_parsed.find("span", id="amount").text
     else:
         card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find("h2").text.replace('$', '').strip()+'.00'
 
