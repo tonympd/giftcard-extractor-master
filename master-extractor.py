@@ -48,6 +48,9 @@ def parse_activationspot(egc_link):
         elif "eBay" in card_brand.text:
             card_brand = "eBay"
 
+        elif "Yankee" in card_brand.text:
+            card_brand = "Yankee Candle"
+
     # Staples
     elif card_parsed.find("input", id="Hidden2") is not None:
         card_brand = card_parsed.find("input", id="Hidden2")['value'].replace("®","")
@@ -64,10 +67,9 @@ def parse_activationspot(egc_link):
     elif card_parsed.find("div", {"class": "showCard"}) is not None:
         card_brand = card_parsed.find("h1", {"class": "ribbon"}).text.replace("Your ","")
 
-
-
     else:
         print("Unknown card brand for {}".format(link_type))
+
 
     if gcm_format:
         if card_parsed.find("input", id="cardNumber") is not None:
@@ -118,6 +120,12 @@ def parse_activationspot(egc_link):
 
         card_number = card_parsed.find("span", id="cardNumber2").text.strip().replace(" ", "")
         card_pin = card_parsed.find("div", {"class": "cardNum"}).find_all("span")[1].text.strip()
+        card_amount = card_parsed.find("div", id="amount").text.strip().replace("$", "")
+
+    elif card_brand == 'Yankee Candle':
+
+        card_number = card_parsed.find("span", id="cardNumber2").text.strip().replace(" ", "")
+        card_pin = card_parsed.find("span", id="secCode").text.strip()
         card_amount = card_parsed.find("div", id="amount").text.strip().replace("$", "")
 
     elif card_brand == 'Uber':
