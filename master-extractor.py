@@ -264,7 +264,7 @@ def parse_kroger(egc_link):
         card_pin = card_parsed.find("input", id="pinNumber")['value']
     elif card_brand == 'Enjoy Your Happy You Swap Gift Card!':
         card_pin = card_parsed.find("div", id="pinContainer").text.replace("PIN:", "").strip()
-    elif card_brand == 'Staples':
+    elif card_brand == 'Staples' or card_brand == 'Bath & Body Works eGift Card':
         card_pin = card_parsed.find("span", id="secCode").text.strip()
     else:
         card_pin = "N/A"
@@ -281,7 +281,7 @@ def parse_kroger(egc_link):
         card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find(id="amount").text.replace('$','').strip() + '.00'
     elif card_brand == 'Enjoy Your Happy You Swap Gift Card!':
         card_amount = card_parsed.find("div", id="value").text.replace("$", "").strip() + '.00'
-    elif card_brand == 'Uber':
+    elif card_brand == 'Uber'  or card_brand == 'Bath & Body Works eGift Card':
         card_amount = card_parsed.find("div", id="amount").text.replace("$", "").strip() + '.00'
     elif card_brand == 'Staples':
         card_amount = card_parsed.find("span", id="egc-amount").text.replace("$", "").strip() + '.00'
