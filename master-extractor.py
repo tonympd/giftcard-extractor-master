@@ -255,6 +255,11 @@ def parse_kroger(egc_link):
         card_brand = card_parsed.find("div", id="main").find("strong", {"class": "ribbon-content"}).text.replace("Your ","").replace(" eGift card","")
         card_number = card_parsed.find("div", {"class": "cardNum"}).find("span").text.replace(" ","")
 
+    # Game Stop
+    elif card_parsed.find("h2").find("span", {"class": "red"}) is not None:
+        card_brand = card_parsed.find("h2").find("span", {"class": "red"}).text
+        card_number = card_parsed.find("span", id="cardNumber2").text.replace(" ","")
+
     elif card_parsed.find("div", {"class": "cardInfo"}) is not None:
         card_brand = card_parsed.find("div", {"class": "cardInfo"}).find("h1").text
         card_number = card_parsed.find("span", id="cardNumber2").text.replace(" ","")
@@ -268,12 +273,15 @@ def parse_kroger(egc_link):
             if card_number[0] == 'X':
                 card_brand = 'iTunes'
 
+
     if card_parsed.find("input", id="pinNumber") is not None:
         card_pin = card_parsed.find("input", id="pinNumber")['value']
     elif card_brand == 'Enjoy Your Happy You Swap Gift Card!':
         card_pin = card_parsed.find("div", id="pinContainer").text.replace("PIN:", "").strip()
-    elif card_brand == 'Staples' or card_brand == 'Bath & Body Works eGift Card':
+    elif card_brand == 'Staples' or card_brand == 'Bath & Body Works eGift Card' or card_brand == 'Barnes & Noble eGift Card':
         card_pin = card_parsed.find("span", id="secCode").text.strip()
+    elif card_brand == 'GameStop':
+        card_pin = card_parsed.find("div", {"class": "cardNum"}).find_all("span")[1].text
     else:
         card_pin = "N/A"
 
@@ -289,12 +297,14 @@ def parse_kroger(egc_link):
         card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find(id="amount").text.replace('$','').strip() + '.00'
     elif card_brand == 'Enjoy Your Happy You Swap Gift Card!':
         card_amount = card_parsed.find("div", id="value").text.replace("$", "").strip() + '.00'
-    elif card_brand == 'Uber'  or card_brand == 'Bath & Body Works eGift Card':
+    elif card_brand == 'Uber'  or card_brand == 'Bath & Body Works eGift Card' or card_brand == 'Barnes & Noble eGift Card':
         card_amount = card_parsed.find("div", id="amount").text.replace("$", "").strip() + '.00'
     elif card_brand == 'Staples':
         card_amount = card_parsed.find("span", id="egc-amount").text.replace("$", "").strip() + '.00'
     elif card_brand == 'Kohl\'s':
         card_amount = card_parsed.find("span", id="amount").text
+    elif card_brand == 'GameStop':
+        card_amount = card_parsed.find("h1").find("span",  {"class": "red"}).text.replace('$', '').replace(' USD', '').strip()+'.00'
     else:
         card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find("h2").text.replace('$', '').strip()+'.00'
 
