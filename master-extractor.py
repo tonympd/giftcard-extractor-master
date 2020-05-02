@@ -509,6 +509,40 @@ def take_screenshot(gift_card):
         os.remove(screenshot_name)
 
 
+def parse_wgiftcard(egc_link):
+
+    link_type = 'wGiftCard'
+
+    # Open the link in the browser
+    browser.get(egc_link['href'])
+    card_parsed = BeautifulSoup(browser.page_source, 'html.parser')
+
+    if 'Red Robin' in card_parsed.find("title").text:
+        card_brand = 'Red Robin'
+        card_number = card_parsed.find_all("strong")[3].text.replace("Account # ", "").replace(" ", "").strip()
+        card_pin = "N/A"
+        card_amount = card_parsed.find_all("td", text=re.compile('$.*'))[3].text.replace("$", " ").strip()
+
+    elif 'Panera' in card_parsed.find("title").text:
+        card_brand = 'Panera Bread'
+        card_number = card_parsed.find_all("p")[3].text.replace("eGift Card #:", "").replace(" ", "").strip()
+        card_pin = card_parsed.find_all("p")[4].text.replace("PIN #:", "").strip()
+        card_amount = card_parsed.find_all("p")[2].text.replace("Value:", "").replace("$", "").strip()
+
+    # set redeem_flag to zero to stay compatible with ppdg (effects screen capture)
+    redeem_flag = 0
+
+    # Create Gift Card Dictionary
+    gift_card = {'type': link_type,
+                 'brand': card_brand,
+                 'amount': card_amount,
+                 'number': card_number,
+                 'pin': card_pin,
+                 'redeem_flag': redeem_flag}
+
+    return gift_card
+
+
 def write_card(gift_card):
 
     # Write the details to the CSV
@@ -680,7 +714,7 @@ for from_email in config.FROM_EMAILS:
                                     time.sleep(3)
 
                         # Staples
-                        elif len(msg_parsed.find_all("a", text=re.compile('.*View Gift')) > 0):
+                        elif len(msg_parsed.find_all("a", text=re.compile('.*View Gift'))) > 0:
 
                             if config.DEBUG:
                                 print('Staples')
@@ -701,6 +735,19 @@ for from_email in config.FROM_EMAILS:
 
                             egc_link = msg_parsed.select_one("a[href*=amazon]")
                             gift_card = parse_activationspot(egc_link)
+
+                        # wGiftCards
+                        elif len(msg_parsed.find_all("a", text=re.compile('click.*'))) > 0 or \
+                             len(msg_parsed.find_all("a", text=re.compile('.*your eGift Card.*'))) > 0:
+
+                            if config.DEBUG:
+                                print('wGiftCards')
+
+                            egc_link = msg_parsed.find("a", text=re.compile('click.*'))
+                            if egc_link is None:
+                                egc_link = msg_parsed.find("a", text=re.compile('.*your eGift Card.*'))
+
+                            gift_card = parse_wgiftcard(egc_link)
 
                         else:
                             print(msg_parsed)
