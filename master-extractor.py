@@ -55,6 +55,11 @@ def parse_activationspot(egc_link):
     elif card_parsed.find("input", id="Hidden2") is not None:
         card_brand = card_parsed.find("input", id="Hidden2")['value'].replace("®","")
 
+    # best buy
+    elif card_parsed.find("div", {"class": "headingText"}) is not None:
+        if 'Best Buy' in card_parsed.find("div", {"class": "headingText"}).text:
+            card_brand = 'Best Buy'
+
     # AppleBee
     elif card_parsed.find("h1", {"class": "ribbon"}) is not None:
         card_brand = card_parsed.find("h1", {"class": "ribbon"}).text.replace(" eGift Card", "").replace("Your ","")
@@ -139,6 +144,15 @@ def parse_activationspot(egc_link):
         card_number = card_parsed.find("span", id="cardNumber2").text.replace(" ", "").strip()
         card_pin = "N/A"
         card_amount = card_parsed.find("div", id="amount").text.strip().replace("$", "")
+
+    elif card_brand == 'Best Buy':
+
+        card_number = card_parsed.find("span", id="cardNumber2").text.replace(" ", "").strip()
+        card_pin = card_parsed.find("span", id="Span2").text.replace(" ", "").strip()
+        header = card_parsed.find("h1").text
+        match = re.search('\$(\d*)', header)
+        if match:
+            card_amount = match.group(1).strip() + ".00"
 
     elif card_brand == 'Staples':
 
@@ -426,41 +440,6 @@ def parse_ppdg(egc_link):
                  'redeem_flag': redeem_flag}
 
     return gift_card
-
-
-
-# def parse_staples(egc_link):
-#
-#     link_type = 'staples'
-#
-#     # Open the link in the browser
-#     browser.get(egc_link['href'])
-#     card_parsed = BeautifulSoup(browser.page_source, 'html.parser')
-#
-#     card_brand = card_parsed.find("input", id="retailerName")['value'].replace('®', '')
-#     card_number = card_parsed.find("input", id="cardNumber")['value']
-#
-#     if card_parsed.find("input", id="pinNumber") is not None:
-#         card_pin = card_parsed.find("input", id="pinNumber")['value']
-#     else:
-#         card_pin = "N/A"
-#
-#
-#     card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find("h2").text.replace('$', '').strip()+'.00'
-#
-#     # set redeem_flag to zero to stay compatible with ppdg (effects screen capture)
-#     redeem_flag = 0
-#
-#     # Create Gift Card Dictionary
-#     gift_card = {'type': link_type,
-#                  'brand': card_brand,
-#                  'amount': card_amount,
-#                  'number': card_number,
-#                  'pin': card_pin,
-#                  'redeem_flag': redeem_flag}
-#
-#     return gift_card
-
 
 
 def take_screenshot(gift_card):
