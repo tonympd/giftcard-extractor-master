@@ -51,6 +51,9 @@ def parse_activationspot(egc_link):
         elif "Yankee" in card_brand.text:
             card_brand = "Yankee Candle"
 
+        elif "Columbia" in card_brand.text:
+            card_brand = "Columbia"
+
     # Staples
     elif card_parsed.find("input", id="Hidden2") is not None:
         card_brand = card_parsed.find("input", id="Hidden2")['value'].replace("®","")
@@ -74,7 +77,6 @@ def parse_activationspot(egc_link):
 
     else:
         print("Unknown card brand for {}".format(link_type))
-
 
     if gcm_format:
         if card_parsed.find("input", id="cardNumber") is not None:
@@ -127,7 +129,7 @@ def parse_activationspot(egc_link):
         card_pin = card_parsed.find("div", {"class": "cardNum"}).find_all("span")[1].text.strip()
         card_amount = card_parsed.find("div", id="amount").text.strip().replace("$", "")
 
-    elif card_brand == 'Yankee Candle':
+    elif card_brand == 'Yankee Candle' or card_brand == 'Columbia':
 
         card_number = card_parsed.find("span", id="cardNumber2").text.strip().replace(" ", "")
         card_pin = card_parsed.find("span", id="secCode").text.strip()
@@ -269,8 +271,15 @@ def parse_kroger(egc_link):
         card_brand = card_parsed.find("div", id="main").find("strong", {"class": "ribbon-content"}).text.replace("Your ","").replace(" eGift card","")
         card_number = card_parsed.find("div", {"class": "cardNum"}).find("span").text.replace(" ","")
 
+    # Applebees
+    elif card_parsed.find("h1", {"class": "off-page"}) is not None:
+        card_brand = card_parsed.find("h1", {"class": "off-page"}).text
+        if 'Applebee' in card_brand:
+            card_brand = 'Applebee'
+        card_number = card_parsed.find("span", id="cardNumber2").text.replace(" ","")
+
     # Game Stop
-    elif card_parsed.find("h2").find("span", {"class": "red"}) is not None:
+    elif card_parsed.find("h1").find("span", {"class": "red"}) is not None:
         card_brand = card_parsed.find("h2").find("span", {"class": "red"}).text
         card_number = card_parsed.find("span", id="cardNumber2").text.replace(" ","")
 
@@ -287,7 +296,6 @@ def parse_kroger(egc_link):
             if card_number[0] == 'X':
                 card_brand = 'iTunes'
 
-
     if card_parsed.find("input", id="pinNumber") is not None:
         card_pin = card_parsed.find("input", id="pinNumber")['value']
     elif card_brand == 'Enjoy Your Happy You Swap Gift Card!':
@@ -296,6 +304,8 @@ def parse_kroger(egc_link):
         card_pin = card_parsed.find("span", id="secCode").text.strip()
     elif card_brand == 'GameStop':
         card_pin = card_parsed.find("div", {"class": "cardNum"}).find_all("span")[1].text
+    elif card_brand == 'Applebee':
+        card_pin = card_parsed.find("span", id="securityCode").text
     else:
         card_pin = "N/A"
 
@@ -311,8 +321,10 @@ def parse_kroger(egc_link):
         card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find(id="amount").text.replace('$','').strip() + '.00'
     elif card_brand == 'Enjoy Your Happy You Swap Gift Card!':
         card_amount = card_parsed.find("div", id="value").text.replace("$", "").strip() + '.00'
-    elif card_brand == 'Uber'  or card_brand == 'Bath & Body Works eGift Card' or card_brand == 'Barnes & Noble eGift Card':
+    elif card_brand == 'Uber'  or card_brand == 'Bath & Body Works eGift Card' or card_brand == 'Barnes & Noble eGift Card' or card_brand == 'GRUBHUB eGift Card':
         card_amount = card_parsed.find("div", id="amount").text.replace("$", "").strip() + '.00'
+    elif card_brand == 'Applebee':
+        card_amount = card_parsed.find("div", id="amount").text.replace("$", "").strip()
     elif card_brand == 'Staples':
         card_amount = card_parsed.find("span", id="egc-amount").text.replace("$", "").strip() + '.00'
     elif card_brand == 'Kohl\'s':
