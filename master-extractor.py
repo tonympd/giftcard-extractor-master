@@ -304,7 +304,7 @@ def parse_kroger(egc_link):
         card_pin = card_parsed.find("div", id="pinContainer").text.replace("PIN:", "").strip()
     elif card_brand == 'Staples' or card_brand == 'Bath & Body Works eGift Card' or card_brand == 'Barnes & Noble eGift Card':
         card_pin = card_parsed.find("span", id="secCode").text.strip()
-    elif card_brand == 'GameStop':
+    elif card_brand == 'GameStop' or card_brand == 'Foot Locker':
         card_pin = card_parsed.find("div", {"class": "cardNum"}).find_all("span")[1].text
     elif card_brand == 'Applebee':
         card_pin = card_parsed.find("span", id="securityCode").text
@@ -323,7 +323,7 @@ def parse_kroger(egc_link):
         card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find(id="amount").text.replace('$','').strip() + '.00'
     elif card_brand == 'Enjoy Your Happy You Swap Gift Card!':
         card_amount = card_parsed.find("div", id="value").text.replace("$", "").strip() + '.00'
-    elif card_brand == 'Uber'  or card_brand == 'Bath & Body Works eGift Card' or card_brand == 'Barnes & Noble eGift Card' or card_brand == 'GRUBHUB eGift Card':
+    elif card_brand == 'Uber'  or card_brand == 'Bath & Body Works eGift Card' or card_brand == 'Barnes & Noble eGift Card' or card_brand == 'GRUBHUB eGift Card'  or card_brand == 'Foot Locker':
         card_amount = card_parsed.find("div", id="amount").text.replace("$", "").strip() + '.00'
     elif card_brand == 'Applebee':
         card_amount = card_parsed.find("div", id="amount").text.replace("$", "").strip()
