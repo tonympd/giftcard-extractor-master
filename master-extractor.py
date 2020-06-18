@@ -276,6 +276,8 @@ def parse_kroger(egc_link):
         card_brand = card_parsed.find("h1", {"class": "off-page"}).text
         if 'Applebee' in card_brand:
             card_brand = 'Applebee'
+        elif 'Kohl' in card_brand:
+            card_brand = 'Kohl\'s'
         card_number = card_parsed.find("span", id="cardNumber2").text.replace(" ","")
 
     # Game Stop
