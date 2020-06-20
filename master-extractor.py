@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import TimeoutException
+from webdriver_manager.chrome import ChromeDriverManager
 from time import sleep
 import config
 import time
@@ -596,7 +597,7 @@ for from_email in config.FROM_EMAILS:
             with open(csv_filename, 'a', newline='') as csv_file:
 
                 # Start the browser and the CSV writer
-                browser = webdriver.Chrome(config.CHROMEDRIVER_PATH)
+                browser = webdriver.Chrome(ChromeDriverManager().install())
                 browser.set_page_load_timeout(10)
                 csv_writer = csv.writer(csv_file)
 
