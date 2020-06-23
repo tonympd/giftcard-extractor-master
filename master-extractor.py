@@ -63,6 +63,8 @@ def parse_activationspot(egc_link):
     elif card_parsed.find("div", {"class": "headingText"}) is not None:
         if 'Best Buy' in card_parsed.find("div", {"class": "headingText"}).text:
             card_brand = 'Best Buy'
+        elif 'Petco' in card_parsed.find("div", {"class": "headingText"}).text:
+            card_brand = 'Petco'
 
     # AppleBee
     elif card_parsed.find("h1", {"class": "ribbon"}) is not None:
@@ -148,7 +150,7 @@ def parse_activationspot(egc_link):
         card_pin = "N/A"
         card_amount = card_parsed.find("div", id="amount").text.strip().replace("$", "")
 
-    elif card_brand == 'Best Buy':
+    elif card_brand == 'Best Buy' or card_brand == 'Petco':
 
         card_number = card_parsed.find("span", id="cardNumber2").text.replace(" ", "").strip()
         card_pin = card_parsed.find("span", id="Span2").text.replace(" ", "").strip()
