@@ -24,6 +24,8 @@ def parse_activationspot(egc_link):
     # Open the link in the browser
     browser.get(egc_link['href'])
 
+    time.sleep(10)
+
     card_parsed = BeautifulSoup(browser.page_source, 'html.parser')
 
     gcm_format = False
@@ -709,7 +711,7 @@ for from_email in config.FROM_EMAILS:
                                 for egc_link in egc_links:
                                     gift_card = parse_kroger(egc_link)
                                     gift_cards.append(gift_card)
-                                    time.sleep(3)
+                                    time.sleep(1)
 
                         # Staples
                         elif len(msg_parsed.find_all("a", text=re.compile('.*View Gift'))) > 0:
@@ -773,7 +775,7 @@ for from_email in config.FROM_EMAILS:
                     else:
                         print("ERROR: Unable to fetch message {}, skipping.".format(msg_id.decode('UTF-8')))
 
-                    time.sleep(10)
+                    time.sleep(3)
 
                 # Close the browser
                 browser.close()
