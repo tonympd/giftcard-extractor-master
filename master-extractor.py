@@ -326,11 +326,12 @@ def parse_kroger(egc_link):
     elif card_brand == 'iTunes':
         description = card_parsed.find("div", {"class": "cardNum"}).find("p", {"class": "large"}).text
         card_amount = re.search('\$(\d*)', description).group(1).strip() + '.00'
-    elif card_brand == "Cabela's":
+    elif card_brand == "Cabela's" or card_brand == 'eBay digital Gift Card':
         card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find(id="amount").text.replace('$','').strip() + '.00'
     elif card_brand == 'Enjoy Your Happy You Swap Gift Card!':
         card_amount = card_parsed.find("div", id="value").text.replace("$", "").strip() + '.00'
-    elif card_brand == 'Uber'  or card_brand == 'Bath & Body Works eGift Card' or card_brand == 'Barnes & Noble eGift Card' or card_brand == 'GRUBHUB eGift Card'  or card_brand == 'Foot Locker':
+    elif card_brand == 'Uber'  or card_brand == 'Bath & Body Works eGift Card' or card_brand == 'Barnes & Noble eGift Card' or \
+        card_brand == 'GRUBHUB eGift Card'  or card_brand == 'Foot Locker':
         card_amount = card_parsed.find("div", id="amount").text.replace("$", "").strip() + '.00'
     elif card_brand == 'Applebee':
         card_amount = card_parsed.find("div", id="amount").text.replace("$", "").strip()
