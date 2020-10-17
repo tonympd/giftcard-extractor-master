@@ -132,7 +132,8 @@ def parse_activationspot(egc_link):
         card_pin = card_parsed.find("div", {"class": "cardNum"}).find_all("span")[1].text.strip()
         card_amount = card_parsed.find("div", id="amount").text.strip().replace("$", "")
 
-    elif card_brand == 'Yankee Candle' or card_brand == 'Columbia' or card_brand == 'Columbia Sportswear' or card_brand == 'Dominos':
+    elif card_brand == 'Yankee Candle' or card_brand == 'Columbia' or card_brand == 'Columbia Sportswear' \
+            or card_brand == 'Dominos' or card_brand == 'Brinker-Chili\'s':
 
         card_number = card_parsed.find("span", id="cardNumber2").text.strip().replace(" ", "")
         card_pin = card_parsed.find("span", id="secCode").text.strip()
