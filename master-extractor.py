@@ -312,10 +312,13 @@ def parse_kroger(egc_link):
         card_pin = card_parsed.find("div", {"class": "cardNum"}).find_all("span")[1].text
     elif card_brand == 'Applebee':
         card_pin = card_parsed.find("span", id="securityCode").text
+    elif 'Best Buy' in card_brand:
+        card_pin = card_parsed.find("span", id="Span2").text
     else:
         card_pin = "N/A"
 
-    if card_brand == 'Best Buy':
+
+    if 'Best Buy' in card_brand:
         header = card_parsed.find("div", {"class": "headingText"}).find("h1").text
         match = re.search('\$(\d*)', header)
         if match:
