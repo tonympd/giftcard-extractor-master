@@ -305,7 +305,7 @@ def parse_kroger(egc_link):
     if card_parsed.find("input", id="pinNumber") is not None:
         card_pin = card_parsed.find("input", id="pinNumber")['value']
     elif 'Enjoy Your Happy' in card_brand or 'Enjoy Your Holiday' in card_brand:
-        card_pin = card_parsed.find("div", id="pinContainer").text.replace("PIN:", "").strip()
+        card_pin = card_parsed.find("div", id="pinContainer").text.replace("productline pin label:", "").strip()
     elif card_brand == 'Staples' or card_brand == 'Bath & Body Works eGift Card' or card_brand == 'Barnes & Noble eGift Card' or 'Panera' in card_brand:
         card_pin = card_parsed.find("span", id="secCode").text.strip()
     elif card_brand == 'GameStop' or card_brand == 'Foot Locker':
