@@ -304,19 +304,20 @@ def parse_kroger(egc_link):
 
     if card_parsed.find("input", id="pinNumber") is not None:
         card_pin = card_parsed.find("input", id="pinNumber")['value']
-    elif 'Enjoy Your Happy' in card_brand:
+    elif 'Enjoy Your Happy' in card_brand or 'Enjoy Your Holiday' in card_brand:
         card_pin = card_parsed.find("div", id="pinContainer").text.replace("PIN:", "").strip()
-    elif card_brand == 'Staples' or card_brand == 'Bath & Body Works eGift Card' or card_brand == 'Barnes & Noble eGift Card':
+    elif card_brand == 'Staples' or card_brand == 'Bath & Body Works eGift Card' or card_brand == 'Barnes & Noble eGift Card' or 'Panera' in card_brand:
         card_pin = card_parsed.find("span", id="secCode").text.strip()
     elif card_brand == 'GameStop' or card_brand == 'Foot Locker':
         card_pin = card_parsed.find("div", {"class": "cardNum"}).find_all("span")[1].text
     elif card_brand == 'Applebee':
         card_pin = card_parsed.find("span", id="securityCode").text
+    elif 'Domino' in card_brand:
+        card_pin = card_parsed.find("span", id="secCode").text
     elif 'Best Buy' in card_brand:
         card_pin = card_parsed.find("span", id="Span2").text
     else:
         card_pin = "N/A"
-
 
     if 'Best Buy' in card_brand:
         header = card_parsed.find("div", {"class": "headingText"}).find("h1").text
@@ -330,8 +331,10 @@ def parse_kroger(egc_link):
         card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find(id="amount").text.replace('$','').strip() + '.00'
     elif 'Enjoy Your Happy' in card_brand:
         card_amount = card_parsed.find("div", id="value").text.replace("$", "").strip()
-    elif card_brand == 'Uber'  or card_brand == 'Bath & Body Works eGift Card' or card_brand == 'Barnes & Noble eGift Card' or \
-        card_brand == 'GRUBHUB eGift Card'  or card_brand == 'Foot Locker':
+    elif 'Enjoy Your Holiday' in card_brand:
+        card_amount = card_parsed.find("a", id="websiteRedem")['href']
+    elif card_brand == 'Uber' or card_brand == 'Bath & Body Works eGift Card' or card_brand == 'Barnes & Noble eGift Card' or \
+        card_brand == 'GRUBHUB eGift Card' or card_brand == 'Foot Locker' or 'Domino' in card_brand or 'Panera' in card_brand:
         card_amount = card_parsed.find("div", id="amount").text.replace("$", "").strip() + '.00'
     elif card_brand == 'Applebee':
         card_amount = card_parsed.find("div", id="amount").text.replace("$", "").strip()
@@ -343,6 +346,7 @@ def parse_kroger(egc_link):
         card_amount = card_parsed.find("h1").find("span",  {"class": "red"}).text.replace('$', '').replace(' USD', '').strip()+'.00'
     else:
         card_amount = card_parsed.find("div", {"class": "showCardInfo"}).find("h2").text.replace('$', '').strip()+'.00'
+
 
     # set redeem_flag to zero to stay compatible with ppdg (effects screen capture)
     redeem_flag = 0
