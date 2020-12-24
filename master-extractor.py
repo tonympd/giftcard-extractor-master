@@ -197,6 +197,34 @@ def parse_activationspot(egc_link):
     return gift_card
 
 
+def parse_cashstar(egc_link):
+
+    link_type = 'cashstar'
+
+    # Open the link in the browser
+    browser.get(egc_link['href'])
+
+    time.sleep(2)
+
+    card_parsed = BeautifulSoup(browser.page_source, 'html.parser')
+
+    card_number_data = card_parsed.find_all("p", id="sb-card-cert")[0].find_all("span")
+    card_number = card_number_data[0].text + card_number_data[1].text + card_number_data[2].text + card_number_data[3].text
+    card_pin = card_parsed.find_all("p", id="sb-card-cert")[0].find_all("strong")[1].text
+    card_brand = "Starbucks"
+    card_amount = card_parsed.find_all("p", id="sbux-amount")[0].text.replace(" USD", "")
+
+    redeem_flag = 0
+
+    gift_card = {'type': link_type,
+                 'brand': card_brand,
+                 'amount': card_amount,
+                 'number': card_number,
+                 'pin': card_pin,
+                 'redeem_flag': redeem_flag}
+
+    return gift_card
+
 def parse_costco(egc_link):
 
     link_type = 'costco'
@@ -740,6 +768,14 @@ for from_email in config.FROM_EMAILS:
 
                             egc_link = msg_parsed.select_one("a[href*=amazon]")
                             gift_card = parse_activationspot(egc_link)
+
+                        # starbucks
+                        elif msg_parsed.select_one("a[href*=starbucks]") is not None:
+                            if config.DEBUG:
+                                print('starbucks')
+
+                            egc_link = msg_parsed.find("a", text=re.compile('Redeem Your eGift.*'))
+                            gift_card = parse_cashstar(egc_link)
 
                         # wGiftCards
                         elif len(msg_parsed.find_all("a", text=re.compile('click.*'))) > 0 or \
