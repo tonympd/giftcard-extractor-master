@@ -51,9 +51,12 @@ def parse_activationspot(egc_link):
     elif card_parsed.find("h1", {"class": "ribbon"}) is not None:
         card_brand = card_parsed.find("h1", {"class": "ribbon"}).text.replace(" eGift Card", "").replace("Your ","")
 
+        if "Uber" in card_brand:
+            card_brand = "Uber"
     # xbox
     elif card_parsed.find("div", {"class": "showCard"}) is not None:
         card_brand = card_parsed.find("h1", {"class": "ribbon"}).text.replace("Your ","")
+
 
     # Uber, Xbox
     elif card_parsed.find("strong", {"class": "ribbon-content"}) is not None:
@@ -104,7 +107,7 @@ def parse_activationspot(egc_link):
             if match:
                 card_amount = match.group(1).strip() + '.00'
 
-        elif card_brand =='Kohl\'s':
+        elif card_brand =='Kohl\'s' :
             card_amount = card_parsed.find("span", {"id": "amount"}).text
 
         else:
